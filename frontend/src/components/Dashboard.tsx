@@ -21,6 +21,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { MapPlaceholder } from './MapPlaceholder'
+import UserProfile from './UserProfile'
 
 // Mock data for user reports
 const mockUserReports = [
@@ -184,6 +185,7 @@ export function Dashboard() {
           <p className="text-muted-foreground">Real-time monitoring of coastal hazards and public awareness</p>
         </div>
         <div className="flex items-center gap-4">
+          <UserProfile />
           <Select value={selectedTimeRange} onValueChange={setSelectedTimeRange}>
             <SelectTrigger className="w-32">
               <SelectValue />

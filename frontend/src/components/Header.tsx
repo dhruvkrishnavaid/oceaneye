@@ -2,15 +2,37 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useAuthStore } from "@/stores/authStore";
 import { Link } from "@tanstack/react-router";
-import { Activity, AlertTriangle, Bell, MapPin, Menu, Shield, Users, Waves } from "lucide-react";
+import {
+  Activity,
+  AlertTriangle,
+  Bell,
+  LogIn,
+  LogOut,
+  MapPin,
+  Menu,
+  Shield,
+  User,
+  Users,
+  Waves,
+} from "lucide-react";
 
 export default function Header() {
+  const { isAuthenticated, user, logout } = useAuthStore();
+
+  const handleLogout = () => {
+    logout();
+  };
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-gradient-to-r from-blue-900 via-blue-800 to-cyan-900 text-white shadow-xl backdrop-blur supports-[backdrop-filter]:bg-background/60 rounded-b-xl">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         {/* Logo Section */}
-        <Link to="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+        <Link
+          to="/"
+          className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+        >
           <div className="relative">
             <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-full blur opacity-30"></div>
             <div className="relative bg-white/10 p-2 rounded-full backdrop-blur border border-white/20">
@@ -30,18 +52,17 @@ export default function Header() {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-1">
           <Link to="/">
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               className="text-white hover:bg-white/10 hover:text-cyan-100 transition-all duration-200"
             >
               <MapPin className="mr-2 h-4 w-4" />
               Home
             </Button>
           </Link>
-          
           <Link to="/dashboard">
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               className="text-white hover:bg-white/10 hover:text-cyan-100 transition-all duration-200 relative"
             >
               <AlertTriangle className="mr-2 h-4 w-4" />
@@ -51,24 +72,60 @@ export default function Header() {
               </Badge>
             </Button>
           </Link>
+          {isAuthenticated ? (
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2">
+                <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
+                  <User className="h-4 w-4 text-white" />
+                </div>
+                <span className="text-sm font-medium text-white">
+                  {user?.name}
+                </span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="text-white hover:bg-white/10 hover:text-cyan-100 transition-all duration-200"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
+              </Button>
+            </div>
+          ) : (
+            <Link to="/login">
+              <Button
+                variant="ghost"
+                className="text-white hover:bg-white/10 hover:text-cyan-100 transition-all duration-200"
+              >
+                <LogIn className="mr-2 h-4 w-4" />
+                Login
+              </Button>
+            </Link>
+          )}
 
           {/* Status Indicators */}
           <div className="flex items-center space-x-4 ml-6 pl-6 border-l border-white/20">
             <div className="flex items-center space-x-2">
               <div className="flex items-center space-x-1">
                 <Activity className="h-4 w-4 text-green-400 animate-pulse" />
-                <span className="text-sm text-green-400 font-medium">Active</span>
+                <span className="text-sm text-green-400 font-medium">
+                  Active
+                </span>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-2">
               <Users className="h-4 w-4 text-cyan-300" />
               <span className="text-sm text-cyan-100">328 Online</span>
             </div>
-            
+
             <div className="flex items-center space-x-2">
               <Bell className="h-4 w-4 text-yellow-400" />
-              <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-300 border-yellow-400/30">
+              <Badge
+                variant="secondary"
+                className="bg-yellow-500/20 text-yellow-300 border-yellow-400/30"
+              >
                 23 Alerts
               </Badge>
             </div>
@@ -79,15 +136,18 @@ export default function Header() {
         <div className="md:hidden">
           <Sheet>
             <SheetTrigger asChild>
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 size="icon"
                 className="text-white hover:bg-white/10"
               >
                 <Menu className="h-6 w-6" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-80 bg-gradient-to-b from-blue-900 to-blue-800 text-white border-blue-700">
+            <SheetContent
+              side="right"
+              className="w-80 bg-gradient-to-b from-blue-900 to-blue-800 text-white border-blue-700"
+            >
               <div className="flex flex-col space-y-6 mt-8">
                 {/* Mobile Logo */}
                 <div className="flex items-center space-x-3 pb-6 border-b border-white/20">
@@ -99,37 +159,45 @@ export default function Header() {
                   </div>
                   <div className="flex flex-col">
                     <span className="text-xl font-bold">OceanEye</span>
-                    <span className="text-sm text-cyan-200">Coastal Monitoring Platform</span>
+                    <span className="text-sm text-cyan-200">
+                      Coastal Monitoring Platform
+                    </span>
                   </div>
                 </div>
 
                 {/* Mobile Navigation Links */}
                 <div className="space-y-3">
                   <Link to="/">
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       className="w-full justify-start text-white hover:bg-white/10 h-12"
                     >
                       <MapPin className="mr-3 h-5 w-5" />
                       <div className="text-left">
                         <div className="font-medium">Home</div>
-                        <div className="text-xs text-cyan-200">Project Overview</div>
+                        <div className="text-xs text-cyan-200">
+                          Project Overview
+                        </div>
                       </div>
                     </Button>
                   </Link>
-                  
+
                   <Link to="/dashboard">
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       className="w-full justify-start text-white hover:bg-white/10 h-12"
                     >
                       <AlertTriangle className="mr-3 h-5 w-5" />
                       <div className="text-left">
                         <div className="font-medium flex items-center">
                           Dashboard
-                          <Badge className="ml-2 bg-red-500 text-white text-xs">Live</Badge>
+                          <Badge className="ml-2 bg-red-500 text-white text-xs">
+                            Live
+                          </Badge>
                         </div>
-                        <div className="text-xs text-cyan-200">Real-time Monitoring</div>
+                        <div className="text-xs text-cyan-200">
+                          Real-time Monitoring
+                        </div>
                       </div>
                     </Button>
                   </Link>
@@ -144,7 +212,9 @@ export default function Header() {
                           <Activity className="h-4 w-4 text-green-400 animate-pulse" />
                           <span className="font-medium">System Status</span>
                         </div>
-                        <Badge className="bg-green-500 text-white">Active</Badge>
+                        <Badge className="bg-green-500 text-white">
+                          Active
+                        </Badge>
                       </div>
                     </CardContent>
                   </Card>
