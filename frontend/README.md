@@ -1,21 +1,73 @@
-Welcome to your new TanStack app! 
+# OceanEye Dashboard - SIH25039 Solution
 
-# Getting Started
+A comprehensive coastal hazard monitoring platform built for Smart India Hackathon 2025, addressing problem statement SIH25039.
+
+## 🌊 Project Overview
+
+OceanEye is a unified platform that enables citizens, coastal residents, volunteers, and disaster managers to report observations during hazardous ocean events and monitor public communication trends via social media. The platform provides real-time monitoring and analysis of coastal hazards across India's 7,517 km coastline.
+
+## 🎯 Problem Statement (SIH25039)
+
+**Title:** Development of a Unified Platform for Crowdsourced Coastal Hazard Reporting and Social Media Monitoring for Enhanced Early Warning Systems
+
+**Challenge:** India's vast coastline faces numerous ocean hazards like tsunamis, storm surges, high waves, and unusual sea behavior. Current warning systems lack real-time ground truth and public communication insights.
+
+## ✨ Key Features
+
+### 📊 Dual Dashboard System
+- **Citizen Reports Panel**: Real-time visualization of geotagged incident reports
+- **Social Media Monitoring Panel**: AI-powered analysis of social media discussions
+
+### 🗺️ Interactive Mapping
+- Real-time incident locations with severity indicators
+- Dynamic hotspot generation based on report density
+- Comprehensive map controls and filtering options
+
+### 📱 Comprehensive Reporting
+- Geotagged reports with photo/video uploads
+- Severity classification (High/Medium/Low)
+- Verification system for incident validation
+
+### 📈 Social Media Intelligence
+- NLP-powered hashtag trend analysis
+- Multi-platform monitoring (Twitter, Facebook, YouTube)
+- Sentiment analysis and engagement metrics
+
+## 🛠️ Technical Stack
+
+- **Frontend**: React 19 with TanStack Start (SSR)
+- **Routing**: TanStack Router
+- **Styling**: Tailwind CSS 4.0 + ShadCN UI
+- **State Management**: TanStack Query
+- **Package Manager**: Bun
+
+## 🚀 Getting Started
 
 To run this application:
 
 ```bash
 bun install
-bunx --bun run start
+bun run dev
 ```
 
-# Building For Production
+Open your browser to `http://localhost:3000`
+
+## 📱 Building For Production
 
 To build this application for production:
 
 ```bash
-bunx --bun run build
+bun run build
 ```
+
+## 📊 Dashboard Features
+
+- **Live Statistics**: Active reports, social mentions, user activity
+- **Interactive Map**: Visual incident mapping with severity indicators  
+- **Report Management**: Detailed citizen report views with media
+- **Social Monitoring**: Real-time social media analysis
+- **Trending Analysis**: Hashtag trends and engagement metrics
+- **Advanced Filtering**: Location, time, and severity-based filters
 
 ## Testing
 
