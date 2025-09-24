@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useNotificationStore } from '@/stores/notificationStore'
+import { useReportsStore } from '@/stores/reportsStore'
 import {
   Activity,
   AlertTriangle,
@@ -19,7 +19,6 @@ import {
   Share2,
   ShieldAlert,
   TrendingUp,
-  Users,
   Waves,
   Wind,
   X,
@@ -28,66 +27,6 @@ import {
 import { useState, useEffect } from 'react'
 import { MapPlaceholder } from './MapPlaceholder'
 import UserProfile from './UserProfile'
-
-// Mock data for user reports
-const mockUserReports = [
-  {
-    id: 1,
-    title: "High Waves at Marina Beach",
-    description: "Unusual wave patterns observed, waves reaching 3-4 meters",
-    location: "Marina Beach, Chennai",
-    coordinates: [13.0478, 80.2619],
-    timestamp: "2025-09-22T10:30:00Z",
-    severity: "medium",
-    type: "high_waves",
-    author: "Coastal Volunteer",
-    verified: true,
-    images: 2,
-    videos: 1
-  },
-  {
-    id: 2,
-    title: "Storm Surge Alert - Visakhapatnam",
-    description: "Water levels rising rapidly, flooding in low-lying areas",
-    location: "Visakhapatnam Port",
-    coordinates: [17.6868, 83.2185],
-    timestamp: "2025-09-22T09:15:00Z",
-    severity: "high",
-    type: "storm_surge",
-    author: "Port Authority",
-    verified: true,
-    images: 5,
-    videos: 2
-  },
-  {
-    id: 3,
-    title: "Unusual Tide Behavior",
-    description: "Tide receding much faster than predicted",
-    location: "Puri Beach, Odisha",
-    coordinates: [19.8135, 85.8312],
-    timestamp: "2025-09-22T08:45:00Z",
-    severity: "low",
-    type: "unusual_tide",
-    author: "Local Fisherman",
-    verified: false,
-    images: 1,
-    videos: 0
-  },
-  {
-    id: 4,
-    title: "Coastal Erosion Observed",
-    description: "Significant erosion noticed after recent storms",
-    location: "Kovalam Beach, Kerala",
-    coordinates: [8.4004, 76.9784],
-    timestamp: "2025-09-22T07:20:00Z",
-    severity: "medium",
-    type: "coastal_damage",
-    author: "Environmental Group",
-    verified: true,
-    images: 8,
-    videos: 1
-  }
-]
 
 // Mock data for social media posts
 const mockSocialPosts = [
@@ -178,55 +117,60 @@ const getPlatformColor = (platform: string) => {
   }
 }
 
+const getSeverityBadgeVariant = (severity: string): "destructive" | "default" | "secondary" | "outline" => {
+  switch (severity) {
+    case 'high': return 'destructive'
+    case 'medium': return 'default'
+    case 'low': return 'secondary'
+    default: return 'outline'
+  }
+}
+
+const getVerificationBadge = (verified?: 'pending' | 'verified' | 'fake') => {
+  switch (verified) {
+    case 'verified':
+      return <Badge className="bg-green-500 text-white">Verified</Badge>;
+    case 'fake':
+      return <Badge className="bg-red-500 text-white">Fake News</Badge>;
+    default:
+      return <Badge className="bg-yellow-500 text-white">Pending</Badge>;
+  }
+};
+
 export function Dashboard() {
   const [selectedLocation, setSelectedLocation] = useState<string>('all')
   const [selectedSeverity, setSelectedSeverity] = useState<string>('all')
   const [selectedTimeRange, setSelectedTimeRange] = useState<string>('24h')
   const [showActiveReportsModal, setShowActiveReportsModal] = useState(false)
+  const [showVerifiedReportsModal, setShowVerifiedReportsModal] = useState(false)
+  const [showFakePostsModal, setShowFakePostsModal] = useState(false)
   
-  const { notifications, unreadCount, fetchNotifications, markAsVerified, markAsFake, markAsRead } = useNotificationStore();
+  const { 
+    reports, 
+    fetchReports,
+    markAsVerified,
+    markAsFake,
+    markAsRead,
+    resetVerificationStatus,
+    getPendingReports,
+    getVerifiedReports,
+    getFakeReports,
+    getUnreadCount,
+    getVerifiedCount
+  } = useReportsStore();
+
+  // Get computed values
+  const pendingReports = getPendingReports();
+  const verifiedReports = getVerifiedReports();
+  const fakeReports = getFakeReports();
+  const unreadCount = getUnreadCount();
+  const verifiedCount = getVerifiedCount();
+  const fakeCount = fakeReports.length;
 
   // Fetch active reports when component mounts
   useEffect(() => {
-    fetchNotifications();
-  }, [fetchNotifications]);
-
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case 'high':
-        return 'border-l-red-500 text-red-700 bg-red-50';
-      case 'medium':
-        return 'border-l-yellow-500 text-yellow-700 bg-yellow-50';
-      case 'low':
-        return 'border-l-blue-500 text-blue-700 bg-blue-50';
-      default:
-        return 'border-l-gray-500 text-gray-700 bg-gray-50';
-    }
-  };
-
-  const getSeverityBadgeVariant = (severity: string): "destructive" | "default" | "secondary" | "outline" => {
-    switch (severity) {
-      case 'high':
-        return 'destructive';
-      case 'medium':
-        return 'default';
-      case 'low':
-        return 'secondary';
-      default:
-        return 'outline';
-    }
-  };
-
-  const getVerificationBadge = (verified?: 'pending' | 'verified' | 'fake') => {
-    switch (verified) {
-      case 'verified':
-        return <Badge className="bg-green-500 text-white">Verified</Badge>;
-      case 'fake':
-        return <Badge className="bg-red-500 text-white">Fake News</Badge>;
-      default:
-        return <Badge className="bg-yellow-500 text-white">Pending</Badge>;
-    }
-  };
+    fetchReports();
+  }, [fetchReports]);
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -271,7 +215,10 @@ export function Dashboard() {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Card>
+        <Card
+          className="cursor-pointer hover:shadow-md transition-shadow duration-200"
+          onClick={() => setShowVerifiedReportsModal(true)}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Verified Incidents
@@ -279,12 +226,14 @@ export function Dashboard() {
             <ShieldAlert className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">23</div>
-            <p className="text-xs text-muted-foreground">Requires attention</p>
+            <div className="text-2xl font-bold">{verifiedCount}</div>
+            <p className="text-xs text-muted-foreground">
+              Click to view details
+            </p>
           </CardContent>
         </Card>
 
-        <Card 
+        <Card
           className="cursor-pointer hover:shadow-md transition-shadow duration-200"
           onClick={() => setShowActiveReportsModal(true)}
         >
@@ -300,6 +249,20 @@ export function Dashboard() {
           </CardContent>
         </Card>
 
+        <Card
+          className="cursor-pointer hover:shadow-md transition-shadow duration-200"
+          onClick={() => setShowFakePostsModal(true)}
+        >
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Fake Posts</CardTitle>
+            <XCircle className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{fakeCount}</div>
+            <p className="text-xs text-muted-foreground">Click to manage</p>
+          </CardContent>
+        </Card>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -310,17 +273,6 @@ export function Dashboard() {
           <CardContent>
             <div className="text-2xl font-bold">1,247</div>
             <p className="text-xs text-muted-foreground">+89 from last hour</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">328</div>
-            <p className="text-xs text-muted-foreground">Online now</p>
           </CardContent>
         </Card>
       </div>
@@ -351,7 +303,7 @@ export function Dashboard() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="h-96 p-0">
-                  <MapPlaceholder reports={mockUserReports} />
+                  <MapPlaceholder reports={reports} />
                 </CardContent>
               </Card>
             </div>
@@ -377,63 +329,71 @@ export function Dashboard() {
               </div>
 
               <div className="space-y-3 overflow-y-auto max-h-106">
-                {mockUserReports.map((report) => (
-                  <Card key={report.id} className="p-4">
-                    <div className="space-y-3">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-2">
-                          {getSeverityIcon(report.type)}
-                          <h4 className="font-medium text-sm">
-                            {report.title}
-                          </h4>
+                {reports
+                  .filter(
+                    (report) =>
+                      selectedSeverity === "all" ||
+                      report.severity === selectedSeverity,
+                  )
+                  .map((report) => (
+                    <Card key={report.id} className="p-4">
+                      <div className="space-y-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-2">
+                            {getSeverityIcon(report.type)}
+                            <h4 className="font-medium text-sm">
+                              {report.title}
+                            </h4>
+                          </div>
+                          <Badge
+                            variant={getSeverityBadgeVariant(report.severity)}
+                          >
+                            {report.severity}
+                          </Badge>
                         </div>
-                        <Badge variant={getSeverityBadgeVariant(report.severity)}>
-                          {report.severity}
-                        </Badge>
-                      </div>
 
-                      <p className="text-sm text-muted-foreground">
-                        {report.description}
-                      </p>
+                        <p className="text-sm text-muted-foreground">
+                          {report.description}
+                        </p>
 
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <MapPin className="h-3 w-3" />
-                          {report.location}
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <MapPin className="h-3 w-3" />
+                            {report.location}
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {new Date(report.timestamp).toLocaleTimeString()}
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          {new Date(report.timestamp).toLocaleTimeString()}
+
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <span>by {report.author}</span>
+                            {report.verified === "verified" && (
+                              <Badge variant="outline" className="text-xs">
+                                Verified
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                            {report.images > 0 && (
+                              <div className="flex items-center gap-1">
+                                <Camera className="h-3 w-3" />
+                                {report.images}
+                              </div>
+                            )}
+                            {report.videos > 0 && (
+                              <div className="flex items-center gap-1">
+                                <Eye className="h-3 w-3" />
+                                {report.videos}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <span>by {report.author}</span>
-                          {report.verified && (
-                            <Badge variant="outline" className="text-xs">
-                              Verified
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                          {report.images > 0 && (
-                            <div className="flex items-center gap-1">
-                              <Camera className="h-3 w-3" />
-                              {report.images}
-                            </div>
-                          )}
-                          {report.videos > 0 && (
-                            <div className="flex items-center gap-1">
-                              <Eye className="h-3 w-3" />
-                              {report.videos}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
+                    </Card>
+                  ))}
               </div>
             </div>
           </div>
@@ -578,7 +538,10 @@ export function Dashboard() {
       </Tabs>
 
       {/* Active Reports Management Modal */}
-      <Dialog open={showActiveReportsModal} onOpenChange={setShowActiveReportsModal}>
+      <Dialog
+        open={showActiveReportsModal}
+        onOpenChange={setShowActiveReportsModal}
+      >
         <DialogContent className="max-w-4xl max-h-[85vh] p-0 overflow-hidden">
           <DialogHeader className="p-6 pb-4 border-b border-gray-200">
             <DialogTitle className="flex items-center gap-2">
@@ -586,16 +549,16 @@ export function Dashboard() {
               Active Reports Management
             </DialogTitle>
           </DialogHeader>
-          
+
           <div className="max-h-[calc(85vh-120px)] overflow-y-auto px-6 py-4">
-            {notifications.length === 0 ? (
+            {pendingReports.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
                 <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                 <p>No active reports available</p>
               </div>
             ) : (
               <div className="space-y-4">
-                {notifications.map((report) => (
+                {pendingReports.map((report) => (
                   <div
                     key={report.id}
                     className={`p-4 border-l-4 ${getSeverityColor(report.severity)} border border-gray-200 rounded-lg shadow-sm`}
@@ -607,87 +570,327 @@ export function Dashboard() {
                             <h3 className="font-semibold text-gray-900 text-sm sm:text-base truncate">
                               {report.title}
                             </h3>
-                            {report.unread && (
+                            {(report.unread ||
+                              report.verified === "pending") && (
                               <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
                             )}
                             {getVerificationBadge(report.verified)}
+                            <Badge
+                              variant={getSeverityBadgeVariant(report.severity)}
+                            >
+                              {report.severity}
+                            </Badge>
                           </div>
-                          
-                          <p className="text-gray-700 text-sm mb-3 break-words">{report.message}</p>
-                          
+
+                          <p className="text-gray-700 text-sm mb-3 break-words">
+                            {report.description}
+                          </p>
+
                           <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
                             <Clock className="h-4 w-4 flex-shrink-0" />
                             <span className="truncate">{report.time}</span>
+                            <MapPin className="h-4 w-4 flex-shrink-0 ml-2" />
+                            <span className="truncate">{report.location}</span>
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="flex flex-wrap items-center gap-2">
-                        {report.verified === 'pending' && (
+                        {report.verified === "pending" && (
                           <>
                             <Button
                               size="sm"
                               className="bg-green-600 hover:bg-green-700 text-white flex-shrink-0"
                               onClick={() => {
                                 markAsVerified(report.id);
-                                if (report.unread) {
-                                  markAsRead(report.id);
-                                }
+                                markAsRead(report.id);
                               }}
                             >
                               <CheckCircle className="h-4 w-4 mr-1" />
-                              <span className="hidden sm:inline">Mark as </span>Verified
+                              <span className="hidden sm:inline">Mark as </span>
+                              Verified
                             </Button>
                             <Button
                               size="sm"
                               className="bg-red-600 hover:bg-red-700 text-white flex-shrink-0"
                               onClick={() => {
                                 markAsFake(report.id);
-                                if (report.unread) {
-                                  markAsRead(report.id);
-                                }
+                                markAsRead(report.id);
                               }}
                             >
                               <XCircle className="h-4 w-4 mr-1" />
-                              <span className="hidden sm:inline">Mark as </span>Fake
+                              <span className="hidden sm:inline">Mark as </span>
+                              Fake
                             </Button>
                           </>
                         )}
-                        
-                        {report.verified === 'verified' && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="flex-shrink-0"
-                            onClick={() => markAsFake(report.id)}
-                          >
-                            <X className="h-4 w-4 mr-1" />
-                            Mark as Fake
-                          </Button>
+
+                        {report.verified === "verified" && (
+                          <>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex-shrink-0 text-gray-600 hover:text-gray-800"
+                              onClick={() => resetVerificationStatus(report.id)}
+                            >
+                              <X className="h-4 w-4 mr-1" />
+                              Undo Verified
+                            </Button>
+                            <Button
+                              size="sm"
+                              className="bg-red-600 hover:bg-red-700 text-white flex-shrink-0"
+                              onClick={() => markAsFake(report.id)}
+                            >
+                              <XCircle className="h-4 w-4 mr-1" />
+                              <span className="hidden sm:inline">Mark as </span>
+                              Fake
+                            </Button>
+                          </>
                         )}
-                        
-                        {report.verified === 'fake' && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="flex-shrink-0"
-                            onClick={() => markAsVerified(report.id)}
-                          >
-                            <CheckCircle className="h-4 w-4 mr-1" />
-                            Mark as Verified
-                          </Button>
+
+                        {report.verified === "fake" && (
+                          <>
+                            <Button
+                              size="sm"
+                              className="bg-green-600 hover:bg-green-700 text-white flex-shrink-0"
+                              onClick={() => markAsVerified(report.id)}
+                            >
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                              <span className="hidden sm:inline">Mark as </span>
+                              Verified
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="flex-shrink-0 text-gray-600 hover:text-gray-800"
+                              onClick={() => resetVerificationStatus(report.id)}
+                            >
+                              <X className="h-4 w-4 mr-1" />
+                              Undo Fake
+                            </Button>
+                          </>
                         )}
-                        
-                        {report.unread && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="flex-shrink-0"
-                            onClick={() => markAsRead(report.id)}
-                          >
-                            Mark as Read
-                          </Button>
-                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Verified Reports Modal */}
+      <Dialog
+        open={showVerifiedReportsModal}
+        onOpenChange={setShowVerifiedReportsModal}
+      >
+        <DialogContent className="max-w-4xl max-h-[85vh] p-0 overflow-hidden">
+          <DialogHeader className="p-6 pb-4 border-b border-gray-200">
+            <DialogTitle className="flex items-center gap-2">
+              <ShieldAlert className="h-5 w-5 text-green-600" />
+              Verified Reports ({verifiedCount})
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="max-h-[calc(85vh-120px)] overflow-y-auto px-6 py-4">
+            {verifiedReports.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">
+                <ShieldAlert className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>No verified reports available</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {verifiedReports.map((report) => (
+                  <div
+                    key={report.id}
+                    className="p-4 border border-gray-200 rounded-lg shadow-sm"
+                  >
+                    <div className="flex flex-col space-y-3">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2 mb-2">
+                            <h3 className="font-semibold text-gray-900 text-sm sm:text-base truncate">
+                              {report.title}
+                            </h3>
+                            <Badge className="bg-green-500 text-white">
+                              Verified
+                            </Badge>
+                            <Badge
+                              variant={getSeverityBadgeVariant(report.severity)}
+                            >
+                              {report.severity}
+                            </Badge>
+                          </div>
+
+                          <p className="text-gray-700 text-sm mb-3 break-words">
+                            {report.description}
+                          </p>
+
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-sm text-gray-500 mb-3">
+                            <div className="flex items-center gap-1">
+                              <MapPin className="h-4 w-4 flex-shrink-0" />
+                              <span className="truncate">
+                                {report.location}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Clock className="h-4 w-4 flex-shrink-0" />
+                              <span className="truncate">{report.time}</span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <div className="flex items-center gap-2">
+                              <span>by {report.author}</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              {report.images > 0 && (
+                                <div className="flex items-center gap-1">
+                                  <Camera className="h-3 w-3" />
+                                  {report.images}
+                                </div>
+                              )}
+                              {report.videos > 0 && (
+                                <div className="flex items-center gap-1">
+                                  <Eye className="h-3 w-3" />
+                                  {report.videos}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Button
+                          size="sm"
+                          className="bg-red-600 hover:bg-red-700 text-white flex-shrink-0"
+                          onClick={() => markAsFake(report.id)}
+                        >
+                          <XCircle className="h-4 w-4 mr-1" />
+                          <span className="hidden sm:inline">Mark as </span>Fake
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex-shrink-0 text-gray-600 hover:text-gray-800"
+                          onClick={() => resetVerificationStatus(report.id)}
+                        >
+                          <X className="h-4 w-4 mr-1" />
+                          Undo Verified
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Fake Posts Modal */}
+      <Dialog open={showFakePostsModal} onOpenChange={setShowFakePostsModal}>
+        <DialogContent className="max-w-4xl max-h-[85vh] p-0 overflow-hidden">
+          <DialogHeader className="p-6 pb-4 border-b border-gray-200">
+            <DialogTitle className="flex items-center gap-2">
+              <XCircle className="h-5 w-5 text-red-600" />
+              Fake Posts ({fakeCount})
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="max-h-[calc(85vh-120px)] overflow-y-auto px-6 py-4">
+            {fakeReports.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">
+                <XCircle className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>No fake posts available</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {fakeReports.map((report) => (
+                  <div
+                    key={report.id}
+                    className="p-4 border border-gray-200 rounded-lg shadow-sm"
+                  >
+                    <div className="flex flex-col space-y-3">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2 mb-2">
+                            <h3 className="font-semibold text-gray-900 text-sm sm:text-base truncate">
+                              {report.title}
+                            </h3>
+                            <Badge className="bg-red-500 text-white">
+                              Fake
+                            </Badge>
+                            <Badge
+                              variant={getSeverityBadgeVariant(report.severity)}
+                            >
+                              {report.severity}
+                            </Badge>
+                          </div>
+
+                          <p className="text-gray-700 text-sm mb-3 break-words">
+                            {report.description}
+                          </p>
+
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-sm text-gray-500 mb-3">
+                            <div className="flex items-center gap-1">
+                              <MapPin className="h-4 w-4 flex-shrink-0" />
+                              <span className="truncate">
+                                {report.location}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Clock className="h-4 w-4 flex-shrink-0" />
+                              <span className="truncate">{report.time}</span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <div className="flex items-center gap-2">
+                              <span>by {report.author}</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              {report.images > 0 && (
+                                <div className="flex items-center gap-1">
+                                  <Camera className="h-3 w-3" />
+                                  {report.images}
+                                </div>
+                              )}
+                              {report.videos > 0 && (
+                                <div className="flex items-center gap-1">
+                                  <Eye className="h-3 w-3" />
+                                  {report.videos}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Button
+                          size="sm"
+                          className="bg-red-600 hover:bg-red-700 text-white flex-shrink-0"
+                          onClick={() => {
+                            // This would call an API to take down the post
+                            console.log(`Taking down fake post: ${report.id}`);
+                          }}
+                        >
+                          <XCircle className="h-4 w-4 mr-1" />
+                          <span className="hidden sm:inline">Take Down </span>
+                          Post
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex-shrink-0 text-gray-600 hover:text-gray-800"
+                          onClick={() => resetVerificationStatus(report.id)}
+                        >
+                          <X className="h-4 w-4 mr-1" />
+                          Undo Mark as Fake
+                        </Button>
                       </div>
                     </div>
                   </div>
