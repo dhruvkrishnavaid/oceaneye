@@ -2,12 +2,5 @@
 export { useAuthStore } from './authStore';
 export type { User } from './authStore';
 
-export { useNotificationStore } from './notificationStore';
-export type { Notification } from './notificationStore';
-
 export { useReportsStore } from './reportsStore';
 export type { Report } from './reportsStore';
-
-// You can add other stores here as they are created
-// export * from './uiStore';
-// export * from './dataStore';

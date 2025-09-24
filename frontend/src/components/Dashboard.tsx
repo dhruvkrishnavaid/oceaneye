@@ -25,8 +25,8 @@ import {
   XCircle
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { MapPlaceholder } from './MapPlaceholder'
 import UserProfile from './UserProfile'
+import { InteractiveMap } from './InteractiveMap'
 
 // Mock data for social media posts
 const mockSocialPosts = [
@@ -303,7 +303,7 @@ export function Dashboard() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="h-96 p-0">
-                  <MapPlaceholder reports={reports} />
+                  <InteractiveMap reports={reports} />
                 </CardContent>
               </Card>
             </div>

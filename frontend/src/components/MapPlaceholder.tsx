@@ -1,33 +1,41 @@
-import { AlertTriangle, MapPin, Waves, Wind } from 'lucide-react'
+import { AlertTriangle, MapPin, Waves, Wind } from "lucide-react";
 
 interface MapPlaceholderProps {
   reports: Array<{
-    id: number
-    title: string
-    coordinates: number[]
-    severity: string
-    type: string
-  }>
+    id: number;
+    title: string;
+    coordinates: number[];
+    severity: string;
+    type: string;
+  }>;
 }
 
 export function MapPlaceholder({ reports }: MapPlaceholderProps) {
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'high': return 'bg-red-500'
-      case 'medium': return 'bg-yellow-500'
-      case 'low': return 'bg-green-500'
-      default: return 'bg-gray-500'
+      case "high":
+        return "bg-red-500";
+      case "medium":
+        return "bg-yellow-500";
+      case "low":
+        return "bg-green-500";
+      default:
+        return "bg-gray-500";
     }
-  }
+  };
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case 'high_waves': return <Waves className="h-3 w-3" />
-      case 'storm_surge': return <Wind className="h-3 w-3" />
-      case 'coastal_damage': return <AlertTriangle className="h-3 w-3" />
-      default: return <MapPin className="h-3 w-3" />
+      case "high_waves":
+        return <Waves className="h-3 w-3" />;
+      case "storm_surge":
+        return <Wind className="h-3 w-3" />;
+      case "coastal_damage":
+        return <AlertTriangle className="h-3 w-3" />;
+      default:
+        return <MapPin className="h-3 w-3" />;
     }
-  }
+  };
 
   return (
     <div className="relative w-full h-full bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg overflow-hidden">
@@ -54,26 +62,31 @@ export function MapPlaceholder({ reports }: MapPlaceholderProps) {
       <div className="absolute inset-0">
         {reports.map((report) => {
           // Simple coordinate to pixel conversion for demonstration
-          const x = ((report.coordinates[1] + 180) / 360) * 100
-          const y = ((90 - report.coordinates[0]) / 180) * 100
-          
+          const x = ((report.coordinates[1] + 180) / 360) * 100;
+          const y = ((90 - report.coordinates[0]) / 180) * 100;
+
           return (
             <div
               key={report.id}
               className="absolute transform -translate-x-1/2 -translate-y-1/2 group cursor-pointer"
-              style={{ left: `${Math.min(Math.max(x, 10), 90)}%`, top: `${Math.min(Math.max(y, 10), 90)}%` }}
+              style={{
+                left: `${Math.min(Math.max(x, 10), 90)}%`,
+                top: `${Math.min(Math.max(y, 10), 90)}%`,
+              }}
             >
-              <div className={`w-6 h-6 rounded-full ${getSeverityColor(report.severity)} flex items-center justify-center text-white shadow-lg hover:scale-110 transition-transform`}>
+              <div
+                className={`w-6 h-6 rounded-full ${getSeverityColor(report.severity)} flex items-center justify-center text-white shadow-lg hover:scale-110 transition-transform`}
+              >
                 {getTypeIcon(report.type)}
               </div>
-              
+
               {/* Tooltip */}
               <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-black text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
                 {report.title}
                 <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-black"></div>
               </div>
             </div>
-          )
+          );
         })}
       </div>
 
@@ -99,8 +112,12 @@ export function MapPlaceholder({ reports }: MapPlaceholderProps) {
       {/* Map Controls Placeholder */}
       <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm p-2 rounded-lg shadow-lg">
         <div className="space-y-2">
-          <button className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded text-sm font-bold">+</button>
-          <button className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded text-sm font-bold">-</button>
+          <button className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded text-sm font-bold">
+            +
+          </button>
+          <button className="w-8 h-8 flex items-center justify-center hover:bg-gray-100 rounded text-sm font-bold">
+            -
+          </button>
         </div>
       </div>
 
@@ -109,5 +126,5 @@ export function MapPlaceholder({ reports }: MapPlaceholderProps) {
         India's Coastline
       </div>
     </div>
-  )
+  );
 }
