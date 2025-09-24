@@ -1,12 +1,15 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useNotificationStore } from '@/stores/notificationStore'
 import {
   Activity,
   AlertTriangle,
   Camera,
+  CheckCircle,
   Clock,
   Eye,
   Hash,
@@ -18,9 +21,11 @@ import {
   TrendingUp,
   Users,
   Waves,
-  Wind
+  Wind,
+  X,
+  XCircle
 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { MapPlaceholder } from './MapPlaceholder'
 import UserProfile from './UserProfile'
 
@@ -177,6 +182,51 @@ export function Dashboard() {
   const [selectedLocation, setSelectedLocation] = useState<string>('all')
   const [selectedSeverity, setSelectedSeverity] = useState<string>('all')
   const [selectedTimeRange, setSelectedTimeRange] = useState<string>('24h')
+  const [showActiveReportsModal, setShowActiveReportsModal] = useState(false)
+  
+  const { notifications, unreadCount, fetchNotifications, markAsVerified, markAsFake, markAsRead } = useNotificationStore();
+
+  // Fetch active reports when component mounts
+  useEffect(() => {
+    fetchNotifications();
+  }, [fetchNotifications]);
+
+  const getSeverityColor = (severity: string) => {
+    switch (severity) {
+      case 'high':
+        return 'border-l-red-500 text-red-700 bg-red-50';
+      case 'medium':
+        return 'border-l-yellow-500 text-yellow-700 bg-yellow-50';
+      case 'low':
+        return 'border-l-blue-500 text-blue-700 bg-blue-50';
+      default:
+        return 'border-l-gray-500 text-gray-700 bg-gray-50';
+    }
+  };
+
+  const getSeverityBadgeVariant = (severity: string): "destructive" | "default" | "secondary" | "outline" => {
+    switch (severity) {
+      case 'high':
+        return 'destructive';
+      case 'medium':
+        return 'default';
+      case 'low':
+        return 'secondary';
+      default:
+        return 'outline';
+    }
+  };
+
+  const getVerificationBadge = (verified?: 'pending' | 'verified' | 'fake') => {
+    switch (verified) {
+      case 'verified':
+        return <Badge className="bg-green-500 text-white">Verified</Badge>;
+      case 'fake':
+        return <Badge className="bg-red-500 text-white">Fake News</Badge>;
+      default:
+        return <Badge className="bg-yellow-500 text-white">Pending</Badge>;
+    }
+  };
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -234,7 +284,10 @@ export function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-md transition-shadow duration-200"
+          onClick={() => setShowActiveReportsModal(true)}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
               Active Reports
@@ -242,8 +295,8 @@ export function Dashboard() {
             <AlertTriangle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">47</div>
-            <p className="text-xs text-muted-foreground">+12 from last hour</p>
+            <div className="text-2xl font-bold">{unreadCount}</div>
+            <p className="text-xs text-muted-foreground">Click to manage</p>
           </CardContent>
         </Card>
 
@@ -334,7 +387,7 @@ export function Dashboard() {
                             {report.title}
                           </h4>
                         </div>
-                        <Badge variant={getSeverityColor(report.severity)}>
+                        <Badge variant={getSeverityBadgeVariant(report.severity)}>
                           {report.severity}
                         </Badge>
                       </div>
@@ -523,6 +576,127 @@ export function Dashboard() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Active Reports Management Modal */}
+      <Dialog open={showActiveReportsModal} onOpenChange={setShowActiveReportsModal}>
+        <DialogContent className="max-w-4xl max-h-[85vh] p-0 overflow-hidden">
+          <DialogHeader className="p-6 pb-4 border-b border-gray-200">
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              Active Reports Management
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="max-h-[calc(85vh-120px)] overflow-y-auto px-6 py-4">
+            {notifications.length === 0 ? (
+              <div className="text-center py-12 text-gray-500">
+                <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>No active reports available</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {notifications.map((report) => (
+                  <div
+                    key={report.id}
+                    className={`p-4 border-l-4 ${getSeverityColor(report.severity)} border border-gray-200 rounded-lg shadow-sm`}
+                  >
+                    <div className="flex flex-col space-y-3">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2 mb-2">
+                            <h3 className="font-semibold text-gray-900 text-sm sm:text-base truncate">
+                              {report.title}
+                            </h3>
+                            {report.unread && (
+                              <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
+                            )}
+                            {getVerificationBadge(report.verified)}
+                          </div>
+                          
+                          <p className="text-gray-700 text-sm mb-3 break-words">{report.message}</p>
+                          
+                          <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
+                            <Clock className="h-4 w-4 flex-shrink-0" />
+                            <span className="truncate">{report.time}</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-wrap items-center gap-2">
+                        {report.verified === 'pending' && (
+                          <>
+                            <Button
+                              size="sm"
+                              className="bg-green-600 hover:bg-green-700 text-white flex-shrink-0"
+                              onClick={() => {
+                                markAsVerified(report.id);
+                                if (report.unread) {
+                                  markAsRead(report.id);
+                                }
+                              }}
+                            >
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                              <span className="hidden sm:inline">Mark as </span>Verified
+                            </Button>
+                            <Button
+                              size="sm"
+                              className="bg-red-600 hover:bg-red-700 text-white flex-shrink-0"
+                              onClick={() => {
+                                markAsFake(report.id);
+                                if (report.unread) {
+                                  markAsRead(report.id);
+                                }
+                              }}
+                            >
+                              <XCircle className="h-4 w-4 mr-1" />
+                              <span className="hidden sm:inline">Mark as </span>Fake
+                            </Button>
+                          </>
+                        )}
+                        
+                        {report.verified === 'verified' && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-shrink-0"
+                            onClick={() => markAsFake(report.id)}
+                          >
+                            <X className="h-4 w-4 mr-1" />
+                            Mark as Fake
+                          </Button>
+                        )}
+                        
+                        {report.verified === 'fake' && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-shrink-0"
+                            onClick={() => markAsVerified(report.id)}
+                          >
+                            <CheckCircle className="h-4 w-4 mr-1" />
+                            Mark as Verified
+                          </Button>
+                        )}
+                        
+                        {report.unread && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="flex-shrink-0"
+                            onClick={() => markAsRead(report.id)}
+                          >
+                            Mark as Read
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
