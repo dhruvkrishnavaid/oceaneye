@@ -6,4 +6,8 @@ readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "fastapi[standard]>=0.117.1",
+    "aiofiles>=24.1.0",
+    "motor>=3.7.1",
+    "python-dotenv>=1.0.0",
+    "python-multipart>=0.0.6",
 ]

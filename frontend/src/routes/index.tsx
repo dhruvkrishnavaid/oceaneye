@@ -53,10 +53,12 @@ function HomePage() {
                 View Dashboard
               </Button>
             </Link>
-            <Button variant="outline" size="lg">
-              <Users className="mr-2 h-5 w-5" />
-              Report Incident
-            </Button>
+            <Link to="/report">
+              <Button variant="outline" size="lg">
+                <Users className="mr-2 h-5 w-5" />
+                Report Incident
+              </Button>
+            </Link>
           </div>
         </div>
       </section>

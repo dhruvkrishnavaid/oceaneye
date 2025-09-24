@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useNotificationStore } from '@/stores/notificationStore'
 import {
-  Activity,
+  AlertCircle,
   AlertTriangle,
   Camera,
   CheckCircle,
@@ -26,164 +26,66 @@ import {
   XCircle
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
-import { MapPlaceholder } from './MapPlaceholder'
+import { InteractiveMap } from './InteractiveMap'
 import UserProfile from './UserProfile'
 
-// Mock data for user reports
-const mockUserReports = [
-  {
-    id: 1,
-    title: "High Waves at Marina Beach",
-    description: "Unusual wave patterns observed, waves reaching 3-4 meters",
-    location: "Marina Beach, Chennai",
-    coordinates: [13.0478, 80.2619],
-    timestamp: "2025-09-22T10:30:00Z",
-    severity: "medium",
-    type: "high_waves",
-    author: "Coastal Volunteer",
-    verified: true,
-    images: 2,
-    videos: 1
-  },
-  {
-    id: 2,
-    title: "Storm Surge Alert - Visakhapatnam",
-    description: "Water levels rising rapidly, flooding in low-lying areas",
-    location: "Visakhapatnam Port",
-    coordinates: [17.6868, 83.2185],
-    timestamp: "2025-09-22T09:15:00Z",
-    severity: "high",
-    type: "storm_surge",
-    author: "Port Authority",
-    verified: true,
-    images: 5,
-    videos: 2
-  },
-  {
-    id: 3,
-    title: "Unusual Tide Behavior",
-    description: "Tide receding much faster than predicted",
-    location: "Puri Beach, Odisha",
-    coordinates: [19.8135, 85.8312],
-    timestamp: "2025-09-22T08:45:00Z",
-    severity: "low",
-    type: "unusual_tide",
-    author: "Local Fisherman",
-    verified: false,
-    images: 1,
-    videos: 0
-  },
-  {
-    id: 4,
-    title: "Coastal Erosion Observed",
-    description: "Significant erosion noticed after recent storms",
-    location: "Kovalam Beach, Kerala",
-    coordinates: [8.4004, 76.9784],
-    timestamp: "2025-09-22T07:20:00Z",
-    severity: "medium",
-    type: "coastal_damage",
-    author: "Environmental Group",
-    verified: true,
-    images: 8,
-    videos: 1
-  }
-]
+// Types for API responses
+interface UserReport {
+  id: string
+  title: string
+  description: string
+  location: string
+  coordinates: [number, number]
+  severity: string
+  type: string
+  timestamp: string
+  author: string
+  verified: boolean
+  images: number
+  videos: number
+}
 
-// Mock data for social media posts
-const mockSocialPosts = [
-  {
-    id: 1,
-    platform: "Twitter",
-    content: "Massive waves hitting the shore at #MarinaBeach! Stay safe everyone 🌊 #ChennaiWeather #OceanAlert",
-    author: "@Chennai_Updates",
-    timestamp: "2025-09-22T11:45:00Z",
-    engagement: { likes: 245, retweets: 89, replies: 34 },
-    hashtags: ["#MarinaBeach", "#ChennaiWeather", "#OceanAlert"],
-    location: "Chennai, Tamil Nadu",
-    sentiment: "concern",
-    verified: true
-  },
-  {
-    id: 2,
-    platform: "Facebook",
-    content: "Fishermen advised not to venture into sea today due to rough weather conditions. Waves up to 4m expected.",
-    author: "Kerala Fisheries Department",
-    timestamp: "2025-09-22T10:20:00Z",
-    engagement: { likes: 156, shares: 78, comments: 23 },
-    hashtags: ["#FishermenSafety", "#KeralaWeather"],
-    location: "Kerala",
-    sentiment: "advisory",
-    verified: true
-  },
-  {
-    id: 3,
-    platform: "Twitter",
-    content: "Beautiful but dangerous waves at #PuriBeach today. Tourists please maintain safe distance! 📸 #OdishaCoast",
-    author: "@OdishaTourism",
-    timestamp: "2025-09-22T09:55:00Z",
-    engagement: { likes: 89, retweets: 23, replies: 12 },
-    hashtags: ["#PuriBeach", "#OdishaCoast", "#SafetyFirst"],
-    location: "Puri, Odisha",
-    sentiment: "caution",
-    verified: true
-  },
-  {
-    id: 4,
-    platform: "YouTube",
-    content: "Live: Storm surge footage from Visakhapatnam port - Emergency response in action",
-    author: "News24x7",
-    timestamp: "2025-09-22T09:30:00Z",
-    engagement: { views: 12500, likes: 234, comments: 67 },
-    hashtags: ["#StormSurge", "#Visakhapatnam", "#EmergencyResponse"],
-    location: "Visakhapatnam, Andhra Pradesh",
-    sentiment: "urgent",
-    verified: true
-  }
-]
-
-// Mock trending hashtags
-const trendingHashtags = [
-  { tag: "#OceanAlert", count: 1245, trend: "up" },
-  { tag: "#CoastalSafety", count: 892, trend: "up" },
-  { tag: "#MarinaBeach", count: 567, trend: "up" },
-  { tag: "#StormSurge", count: 445, trend: "stable" },
-  { tag: "#TsunamiWatch", count: 234, trend: "down" }
-]
-
-const getSeverityColor = (severity: string) => {
-  switch (severity) {
-    case 'high': return 'destructive'
-    case 'medium': return 'default'
-    case 'low': return 'secondary'
-    default: return 'secondary'
+interface SocialPost {
+  id: string
+  platform: string
+  author: string
+  content: string
+  timestamp: string
+  verified: boolean
+  location: string
+  hashtags?: string[]
+  engagement?: {
+    likes?: number
+    shares?: number
+    comments?: number
+    retweets?: number
+    replies?: number
+    views?: number
   }
 }
 
-const getSeverityIcon = (type: string) => {
-  switch (type) {
-    case 'high_waves': return <Waves className="h-4 w-4" />
-    case 'storm_surge': return <Wind className="h-4 w-4" />
-    case 'unusual_tide': return <Navigation className="h-4 w-4" />
-    case 'coastal_damage': return <AlertTriangle className="h-4 w-4" />
-    default: return <Activity className="h-4 w-4" />
-  }
-}
-
-const getPlatformColor = (platform: string) => {
-  switch (platform.toLowerCase()) {
-    case 'twitter': return 'bg-blue-500'
-    case 'facebook': return 'bg-blue-600'
-    case 'youtube': return 'bg-red-500'
-    default: return 'bg-gray-500'
-  }
+interface DashboardStats {
+  active_reports: number
+  social_mentions: number
+  active_users: number
+  verified_incidents: number
+  active_reports_change: string
+  social_mentions_change: string
+  active_users_description: string
+  verified_incidents_description: string
 }
 
 export function Dashboard() {
+  const [selectedSeverity, setSelectedSeverity] = useState("all")
   const [selectedLocation, setSelectedLocation] = useState<string>('all')
-  const [selectedSeverity, setSelectedSeverity] = useState<string>('all')
   const [selectedTimeRange, setSelectedTimeRange] = useState<string>('24h')
+  const [userReports, setUserReports] = useState<UserReport[]>([])
+  const [socialPosts, setSocialPosts] = useState<SocialPost[]>([])
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [showActiveReportsModal, setShowActiveReportsModal] = useState(false)
-  
+
   const { notifications, unreadCount, fetchNotifications, markAsVerified, markAsFake, markAsRead } = useNotificationStore();
 
   // Fetch active reports when component mounts
@@ -191,7 +93,142 @@ export function Dashboard() {
     fetchNotifications();
   }, [fetchNotifications]);
 
-  const getSeverityColor = (severity: string) => {
+  // Mock data for trending hashtags
+  const trendingHashtags = [
+    { tag: "#CoastalAlert", count: "1.2K", trend: "up" as const },
+    { tag: "#OceanSafety", count: "890", trend: "up" as const },
+    { tag: "#TsunamiWatch", count: "654", trend: "neutral" as const },
+    { tag: "#MarinePollution", count: "432", trend: "down" as const },
+    { tag: "#ClimateChange", count: "321", trend: "up" as const }
+  ];
+
+  // Use userReports from API or fallback to sample data
+  const mockUserReports = userReports.length > 0 ? userReports : [
+    {
+      id: "1",
+      title: "tsunami",
+      description: "there are chances of tsunami in the bay of bengal",
+      location: "west bengal",
+      coordinates: [22.5726, 88.3639] as [number, number],
+      severity: "low",
+      type: "tsunami",
+      timestamp: new Date().toISOString(),
+      author: "anand",
+      verified: false,
+      images: 1,
+      videos: 0
+    },
+    {
+      id: "2",
+      title: "Hurricanes in the mumbai",
+      description: "there is hurricane in the mumbai region.",
+      location: "Ghaziabad, Uttar Pradesh India",
+      coordinates: [28.6692, 77.4538] as [number, number],
+      severity: "medium",
+      type: "hurricane",
+      timestamp: new Date().toISOString(),
+      author: "dhruv",
+      verified: false,
+      images: 0,
+      videos: 0
+    }
+  ];
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        console.log('🔄 Starting to fetch dashboard data...')
+
+        // Fetch all data in parallel
+        const [statsResponse, reportsResponse, socialResponse] = await Promise.all([
+          fetch('http://localhost:8000/api/dashboard/stats'),
+          fetch('http://localhost:8000/api/reports'),
+          fetch('http://localhost:8000/api/social')
+        ])
+
+        console.log('📊 API Responses:', {
+          stats: statsResponse.status,
+          reports: reportsResponse.status,
+          social: socialResponse.status
+        })
+
+        if (statsResponse.ok) {
+          const stats = await statsResponse.json()
+          console.log('✅ Dashboard stats loaded:', stats)
+          setDashboardStats(stats)
+        } else {
+          console.warn('⚠️ Failed to fetch dashboard stats:', statsResponse.status, statsResponse.statusText)
+          setDashboardStats({
+            active_reports: 0,
+            social_mentions: 0,
+            active_users: 0,
+            verified_incidents: 0,
+            active_reports_change: '0%',
+            social_mentions_change: '0%',
+            active_users_description: '',
+            verified_incidents_description: ''
+          })
+        }
+
+        if (reportsResponse.ok) {
+          const reportsData = await reportsResponse.json()
+          console.log('✅ Reports data loaded:', reportsData.reports?.length, 'reports')
+          setUserReports(reportsData.reports || [])
+        } else {
+          console.warn('⚠️ Failed to fetch user reports:', reportsResponse.status, reportsResponse.statusText)
+        }
+
+        if (socialResponse.ok) {
+          const socialData = await socialResponse.json()
+          console.log('✅ Social data loaded:', socialData.posts?.length, 'posts')
+          setSocialPosts(socialData.posts || [])
+        } else {
+          console.warn('⚠️ Failed to fetch social media posts:', socialResponse.status, socialResponse.statusText)
+        }
+
+      } catch (err) {
+        console.error('❌ Error fetching dashboard data:', err)
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
+        setError(`Failed to load dashboard data: ${errorMessage}`)
+        // Set default stats if everything fails
+        setDashboardStats({
+          active_reports: 0,
+          social_mentions: 0,
+          active_users: 0,
+          verified_incidents: 0,
+          active_reports_change: '0%',
+          social_mentions_change: '0%',
+          active_users_description: '',
+          verified_incidents_description: ''
+        })
+      } finally {
+        setLoading(false)
+        console.log('🏁 Dashboard data fetch completed')
+      }
+    }
+
+    fetchDashboardData()
+  }, [])
+
+  const getSeverityIcon = (type: string) => {
+    switch (type) {
+      case 'oil-spill': return <AlertCircle className="h-4 w-4 text-red-500" />
+      case 'debris': return <Hash className="h-4 w-4 text-orange-500" />
+      case 'pollution': return <TrendingUp className="h-4 w-4 text-yellow-500" />
+      case 'wildlife': return <Eye className="h-4 w-4 text-green-500" />
+      case 'high_waves': return <Waves className="h-4 w-4" />
+      case 'storm_surge': return <Wind className="h-4 w-4" />
+      case 'unusual_tide': return <Navigation className="h-4 w-4" />
+      case 'coastal_damage': return <AlertCircle className="h-4 w-4" />
+      case 'tsunami': return <Waves className="h-4 w-4 text-red-600" />
+      case 'hurricane': return <Wind className="h-4 w-4 text-orange-600" />
+      default: return <MessageCircle className="h-4 w-4 text-blue-500" />
+    }
+  }
+
+  const getSeverityColorForModal = (severity: string) => {
     switch (severity) {
       case 'high':
         return 'border-l-red-500 text-red-700 bg-red-50';
@@ -228,142 +265,233 @@ export function Dashboard() {
     }
   };
 
+  const getPlatformColor = (platform: string) => {
+    switch (platform) {
+      case 'Twitter': return 'bg-blue-400'
+      case 'Facebook': return 'bg-blue-600'
+      case 'YouTube': return 'bg-red-500'
+      case 'Instagram': return 'bg-purple-500'
+      case 'TikTok': return 'bg-black'
+      default: return 'bg-gray-500'
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        </div>
+        <div className="text-center py-10">
+          <p>Loading dashboard data...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        </div>
+        <div className="text-center py-10">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-2xl mx-auto">
+            <h3 className="text-lg font-semibold text-red-800 mb-2">Dashboard Loading Error</h3>
+            <p className="text-red-600 mb-4">{error}</p>
+            <div className="text-sm text-gray-600 mb-4">
+              <p>Possible causes:</p>
+              <ul className="list-disc text-left inline-block mt-2">
+                <li>Backend server not running on port 8000</li>
+                <li>CORS configuration issues</li>
+                <li>Network connectivity problems</li>
+              </ul>
+            </div>
+            <div className="flex gap-2 justify-center">
+              <Button onClick={() => window.location.reload()} variant="default">
+                Retry Loading
+              </Button>
+              <Button onClick={() => window.open('http://localhost:8000/api/dashboard/stats', '_blank')} variant="outline">
+                Test API
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">OceanEye Dashboard</h1>
-          <p className="text-muted-foreground">
-            Real-time monitoring of coastal hazards and public awareness
-          </p>
-        </div>
-        <div className="flex items-center gap-4">
-          <UserProfile />
-          <Select
-            value={selectedTimeRange}
-            onValueChange={setSelectedTimeRange}
-          >
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="1h">Last Hour</SelectItem>
-              <SelectItem value="24h">Last 24h</SelectItem>
-              <SelectItem value="7d">Last Week</SelectItem>
-              <SelectItem value="30d">Last Month</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="All Locations" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Locations</SelectItem>
-              <SelectItem value="tamil_nadu">Tamil Nadu</SelectItem>
-              <SelectItem value="kerala">Kerala</SelectItem>
-              <SelectItem value="odisha">Odisha</SelectItem>
-              <SelectItem value="andhra_pradesh">Andhra Pradesh</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <UserProfile />
       </div>
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Verified Incidents
-            </CardTitle>
-            <ShieldAlert className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">23</div>
-            <p className="text-xs text-muted-foreground">Requires attention</p>
-          </CardContent>
-        </Card>
-
-        <Card 
-          className="cursor-pointer hover:shadow-md transition-shadow duration-200"
-          onClick={() => setShowActiveReportsModal(true)}
-        >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Active Reports
-            </CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{unreadCount}</div>
-            <p className="text-xs text-muted-foreground">Click to manage</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Social Mentions
-            </CardTitle>
-            <MessageCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">1,247</div>
-            <p className="text-xs text-muted-foreground">+89 from last hour</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">328</div>
-            <p className="text-xs text-muted-foreground">Online now</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Main Dashboard Tabs */}
-      <Tabs defaultValue="reports" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="reports" className="flex items-center gap-2">
-            <MapPin className="h-4 w-4" />
-            Citizen Reports
-          </TabsTrigger>
-          <TabsTrigger value="social" className="flex items-center gap-2">
-            <Hash className="h-4 w-4" />
-            Social Media Activity
-          </TabsTrigger>
+      <Tabs defaultValue="overview" className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="reports">Reports</TabsTrigger>
+          <TabsTrigger value="social">Social Media</TabsTrigger>
         </TabsList>
 
-        {/* Citizen Reports Tab */}
-        <TabsContent value="reports" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Map Section - Placeholder */}
+        <TabsContent value="overview" className="space-y-4">
+          {/* Filters */}
+          <div className="flex flex-wrap gap-4 items-center justify-between">
+            <div className="flex gap-4">
+              <Select value={selectedTimeRange} onValueChange={setSelectedTimeRange}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="Time Range" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="1h">Last Hour</SelectItem>
+                  <SelectItem value="24h">Last 24 Hours</SelectItem>
+                  <SelectItem value="7d">Last 7 Days</SelectItem>
+                  <SelectItem value="30d">Last 30 Days</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+                <SelectTrigger className="w-40">
+                  <SelectValue placeholder="Location" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Locations</SelectItem>
+                  <SelectItem value="pacific">Pacific Coast</SelectItem>
+                  <SelectItem value="atlantic">Atlantic Coast</SelectItem>
+                  <SelectItem value="gulf">Gulf Coast</SelectItem>
+                  <SelectItem value="great-lakes">Great Lakes</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Stats Cards */}
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card
+              className="cursor-pointer hover:shadow-md transition-shadow duration-200"
+              onClick={() => setShowActiveReportsModal(true)}
+            >
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Active Reports</CardTitle>
+                <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{unreadCount}</div>
+                <p className="text-xs text-muted-foreground">Click to manage</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Social Mentions</CardTitle>
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{dashboardStats?.social_mentions || 0}</div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+                <Users className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{dashboardStats?.active_users || 0}</div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Verified Incidents</CardTitle>
+                <ShieldAlert className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{dashboardStats?.verified_incidents || 0}</div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Map and Recent Reports Layout */}
+          <div className="grid gap-4 lg:grid-cols-3">
+            {/* Interactive Map */}
             <div className="lg:col-span-2">
-              <Card className="pb-0!">
+              <Card className='pb-0!'>
                 <CardHeader>
                   <CardTitle>Interactive Map</CardTitle>
-                  <CardDescription>
-                    Real-time locations of reported incidents
-                  </CardDescription>
+                  <CardDescription>Real-time locations of reported incidents across coastal areas</CardDescription>
                 </CardHeader>
-                <CardContent className="h-96 p-0">
-                  <MapPlaceholder reports={mockUserReports} />
+                <CardContent className="h-[600px] p-0">
+                  <InteractiveMap
+                    key="dashboard-map"
+                    reports={userReports.length > 0 ? userReports : mockUserReports}
+                  />
                 </CardContent>
               </Card>
             </div>
 
+            {/* Recent Reports Panel */}
+            <div className="lg:col-span-1">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Recent Reports</CardTitle>
+                  <CardDescription>Latest incident reports from the field</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4 max-h-[540px] overflow-y-auto">
+                  {(userReports.length > 0 ? userReports : mockUserReports).map((report) => (
+                    <div key={report.id} className="border-l-4 border-blue-200 pl-4 py-2">
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          {getSeverityIcon(report.type)}
+                          <Badge variant={getSeverityBadgeVariant(report.severity)} className="text-xs">
+                            {report.severity}
+                          </Badge>
+                        </div>
+                      </div>
+
+                      <h4 className="font-semibold text-sm mb-1 text-gray-900">{report.title}</h4>
+                      <p className="text-xs text-gray-600 mb-2 line-clamp-2">{report.description}</p>
+
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <div className="flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />
+                          <span className="truncate max-w-[120px]">{report.location}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          <span>{new Date(report.timestamp).toLocaleTimeString()}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-xs text-gray-500">by {report.author}</span>
+                        <div className="flex items-center gap-2">
+                          {report.images > 0 && (
+                            <div className="flex items-center gap-1 text-xs text-gray-500">
+                              <Camera className="h-3 w-3" />
+                              {report.images}
+                            </div>
+                          )}
+                          {report.verified && <Badge variant="outline" className="text-xs">Verified</Badge>}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="reports" className="space-y-4">
+          {/* Reports Tab Content */}
+          <div className="grid gap-4 md:grid-cols-2">
             {/* Reports List */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">Recent Reports</h3>
-                <Select
-                  value={selectedSeverity}
-                  onValueChange={setSelectedSeverity}
-                >
+                <Select value={selectedSeverity} onValueChange={setSelectedSeverity}>
                   <SelectTrigger className="w-32">
                     <SelectValue placeholder="All Severities" />
                   </SelectTrigger>
@@ -376,25 +504,21 @@ export function Dashboard() {
                 </Select>
               </div>
 
-              <div className="space-y-3 overflow-y-auto max-h-106">
-                {mockUserReports.map((report) => (
+              <div className="space-y-3 max-h-[600px] overflow-y-auto">
+                {(userReports.length > 0 ? userReports : mockUserReports).map((report) => (
                   <Card key={report.id} className="p-4">
                     <div className="space-y-3">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-2">
                           {getSeverityIcon(report.type)}
-                          <h4 className="font-medium text-sm">
-                            {report.title}
-                          </h4>
+                          <h4 className="font-medium text-sm">{report.title}</h4>
                         </div>
                         <Badge variant={getSeverityBadgeVariant(report.severity)}>
                           {report.severity}
                         </Badge>
                       </div>
 
-                      <p className="text-sm text-muted-foreground">
-                        {report.description}
-                      </p>
+                      <p className="text-sm text-muted-foreground">{report.description}</p>
 
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <div className="flex items-center gap-1">
@@ -410,11 +534,7 @@ export function Dashboard() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <span>by {report.author}</span>
-                          {report.verified && (
-                            <Badge variant="outline" className="text-xs">
-                              Verified
-                            </Badge>
-                          )}
+                          {report.verified && <Badge variant="outline" className="text-xs">Verified</Badge>}
                         </div>
                         <div className="flex items-center gap-3 text-xs text-muted-foreground">
                           {report.images > 0 && (
@@ -436,88 +556,51 @@ export function Dashboard() {
                 ))}
               </div>
             </div>
-          </div>
-        </TabsContent>
 
-        {/* Social Media Tab */}
-        <TabsContent value="social" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Trending Hashtags */}
-            <div className="lg:col-span-1">
-              <Card>
+            {/* Interactive Map for Reports Tab */}
+            <div>
+              <Card className='pb-0!'>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4" />
-                    Trending Hashtags
-                  </CardTitle>
+                  <CardTitle>Report Locations</CardTitle>
+                  <CardDescription>Interactive map showing incident reports</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  {trendingHashtags.map((hashtag, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-2">
-                        <Hash className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-sm font-medium">
-                          {hashtag.tag.slice(1)}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground">
-                          {hashtag.count}
-                        </span>
-                        <TrendingUp
-                          className={`h-3 w-3 ${
-                            hashtag.trend === "up"
-                              ? "text-green-500"
-                              : hashtag.trend === "down"
-                                ? "text-red-500"
-                                : "text-gray-500"
-                          }`}
-                        />
-                      </div>
-                    </div>
-                  ))}
+                <CardContent className="h-[600px] p-0">
+                  <InteractiveMap
+                    key="reports-map"
+                    reports={userReports.length > 0 ? userReports : mockUserReports}
+                  />
                 </CardContent>
               </Card>
             </div>
+          </div>
+        </TabsContent>
 
+        <TabsContent value="social" className="space-y-4">
+          {/* Social Media Tab Content */}
+          <div className="grid gap-4 grid-cols-1 lg:grid-cols-4">
             {/* Social Media Posts */}
             <div className="lg:col-span-3 space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">
-                  Social Media Monitoring
-                </h3>
+                <h3 className="text-lg font-semibold">Social Media Monitoring</h3>
                 <Button variant="outline" size="sm">
                   <Share2 className="h-4 w-4 mr-2" />
                   Export Report
                 </Button>
               </div>
 
-              <div className="space-y-4 max-h-96 overflow-y-auto">
-                {mockSocialPosts.map((post) => (
+              <div className="space-y-4 max-h-[600px] overflow-y-auto">
+                {socialPosts.map((post) => (
                   <Card key={post.id} className="p-4">
                     <div className="space-y-3">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
-                          <div
-                            className={`w-2 h-2 rounded-full ${getPlatformColor(post.platform)}`}
-                          />
+                          <div className={`w-2 h-2 rounded-full ${getPlatformColor(post.platform)}`} />
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="font-medium text-sm">
-                                {post.author}
-                              </span>
-                              {post.verified && (
-                                <Badge variant="outline" className="text-xs">
-                                  Verified
-                                </Badge>
-                              )}
+                              <span className="font-medium text-sm">{post.author}</span>
+                              {post.verified && <Badge variant="outline" className="text-xs">Verified</Badge>}
                             </div>
-                            <span className="text-xs text-muted-foreground">
-                              {post.platform}
-                            </span>
+                            <span className="text-xs text-muted-foreground">{post.platform}</span>
                           </div>
                         </div>
                         <div className="text-xs text-muted-foreground">
@@ -528,15 +611,11 @@ export function Dashboard() {
                       <p className="text-sm">{post.content}</p>
 
                       <div className="flex flex-wrap gap-1">
-                        {post.hashtags.map((tag, index) => (
-                          <Badge
-                            key={index}
-                            variant="secondary"
-                            className="text-xs"
-                          >
+                        {post.hashtags?.map((tag: string, index: number) => (
+                          <Badge key={index} variant="secondary" className="text-xs">
                             {tag}
                           </Badge>
-                        ))}
+                        )) || []}
                       </div>
 
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -545,25 +624,25 @@ export function Dashboard() {
                           {post.location}
                         </div>
                         <div className="flex items-center gap-4">
-                          {post.platform === "Twitter" && (
+                          {post.platform === 'Twitter' && (
                             <>
-                              <span>❤️ {post.engagement.likes}</span>
-                              <span>🔄 {post.engagement.retweets}</span>
-                              <span>💬 {post.engagement.replies}</span>
+                              <span>❤️ {post.engagement?.likes || 0}</span>
+                              <span>🔄 {post.engagement?.retweets || 0}</span>
+                              <span>💬 {post.engagement?.replies || 0}</span>
                             </>
                           )}
-                          {post.platform === "Facebook" && (
+                          {post.platform === 'Facebook' && (
                             <>
-                              <span>👍 {post.engagement.likes}</span>
-                              <span>📤 {post.engagement.shares}</span>
-                              <span>💬 {post.engagement.comments}</span>
+                              <span>👍 {post.engagement?.likes || 0}</span>
+                              <span>📤 {post.engagement?.shares || 0}</span>
+                              <span>💬 {post.engagement?.comments || 0}</span>
                             </>
                           )}
-                          {post.platform === "YouTube" && (
+                          {post.platform === 'YouTube' && (
                             <>
-                              <span>👁️ {post.engagement.views}</span>
-                              <span>👍 {post.engagement.likes}</span>
-                              <span>💬 {post.engagement.comments}</span>
+                              <span>👁️ {post.engagement?.views || 0}</span>
+                              <span>👍 {post.engagement?.likes || 0}</span>
+                              <span>💬 {post.engagement?.comments || 0}</span>
                             </>
                           )}
                         </div>
@@ -572,6 +651,34 @@ export function Dashboard() {
                   </Card>
                 ))}
               </div>
+            </div>
+
+            {/* Trending Hashtags */}
+            <div className="lg:col-span-1">
+              <Card className="h-fit sticky top-4">
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <Hash className="h-4 w-4" />
+                    Trending
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {trendingHashtags.map((tag, index) => (
+                    <div key={index} className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-sm">{tag.tag}</p>
+                        <p className="text-xs text-muted-foreground">{tag.count} posts</p>
+                      </div>
+                      <div className={`text-xs px-2 py-1 rounded ${tag.trend === 'up' ? 'text-green-600 bg-green-100' :
+                        tag.trend === 'down' ? 'text-red-600 bg-red-100' :
+                          'text-gray-600 bg-gray-100'
+                        }`}>
+                        {tag.trend === 'up' ? '↗' : tag.trend === 'down' ? '↘' : '→'}
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
             </div>
           </div>
         </TabsContent>
@@ -586,7 +693,7 @@ export function Dashboard() {
               Active Reports Management
             </DialogTitle>
           </DialogHeader>
-          
+
           <div className="max-h-[calc(85vh-120px)] overflow-y-auto px-6 py-4">
             {notifications.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
@@ -598,7 +705,7 @@ export function Dashboard() {
                 {notifications.map((report) => (
                   <div
                     key={report.id}
-                    className={`p-4 border-l-4 ${getSeverityColor(report.severity)} border border-gray-200 rounded-lg shadow-sm`}
+                    className={`p-4 border-l-4 ${getSeverityColorForModal(report.severity)} border border-gray-200 rounded-lg shadow-sm`}
                   >
                     <div className="flex flex-col space-y-3">
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
@@ -612,28 +719,23 @@ export function Dashboard() {
                             )}
                             {getVerificationBadge(report.verified)}
                           </div>
-                          
+
                           <p className="text-gray-700 text-sm mb-3 break-words">{report.message}</p>
-                          
+
                           <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
                             <Clock className="h-4 w-4 flex-shrink-0" />
                             <span className="truncate">{report.time}</span>
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="flex flex-wrap items-center gap-2">
                         {report.verified === 'pending' && (
                           <>
                             <Button
                               size="sm"
                               className="bg-green-600 hover:bg-green-700 text-white flex-shrink-0"
-                              onClick={() => {
-                                markAsVerified(report.id);
-                                if (report.unread) {
-                                  markAsRead(report.id);
-                                }
-                              }}
+                              onClick={() => markAsVerified(report.id)}
                             >
                               <CheckCircle className="h-4 w-4 mr-1" />
                               <span className="hidden sm:inline">Mark as </span>Verified
@@ -641,19 +743,14 @@ export function Dashboard() {
                             <Button
                               size="sm"
                               className="bg-red-600 hover:bg-red-700 text-white flex-shrink-0"
-                              onClick={() => {
-                                markAsFake(report.id);
-                                if (report.unread) {
-                                  markAsRead(report.id);
-                                }
-                              }}
+                              onClick={() => markAsFake(report.id)}
                             >
                               <XCircle className="h-4 w-4 mr-1" />
                               <span className="hidden sm:inline">Mark as </span>Fake
                             </Button>
                           </>
                         )}
-                        
+
                         {report.verified === 'verified' && (
                           <Button
                             size="sm"
@@ -665,7 +762,7 @@ export function Dashboard() {
                             Mark as Fake
                           </Button>
                         )}
-                        
+
                         {report.verified === 'fake' && (
                           <Button
                             size="sm"
@@ -677,7 +774,7 @@ export function Dashboard() {
                             Mark as Verified
                           </Button>
                         )}
-                        
+
                         {report.unread && (
                           <Button
                             size="sm"
@@ -698,5 +795,5 @@ export function Dashboard() {
         </DialogContent>
       </Dialog>
     </div>
-  );
+  )
 }

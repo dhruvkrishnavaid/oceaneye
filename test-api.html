@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>API Test</title>
+</head>
+
+<body>
+    <h1>OceanEye API Test</h1>
+    <div id="results"></div>
+
+    <script>
+        async function testAPI() {
+            const results = document.getElementById('results');
+
+            try {
+                // Test dashboard stats
+                console.log('Testing /api/dashboard/stats...');
+                const statsResponse = await fetch('http://localhost:8000/api/dashboard/stats');
+                if (statsResponse.ok) {
+                    const stats = await statsResponse.json();
+                    results.innerHTML += `<h3>Dashboard Stats:</h3><pre>${JSON.stringify(stats, null, 2)}</pre>`;
+                } else {
+                    results.innerHTML += `<p>Stats API failed: ${statsResponse.status}</p>`;
+                }
+
+                // Test reports
+                console.log('Testing /api/reports...');
+                const reportsResponse = await fetch('http://localhost:8000/api/reports');
+                if (reportsResponse.ok) {
+                    const reportsData = await reportsResponse.json();
+                    results.innerHTML += `<h3>Reports (${reportsData.reports?.length || 0} items):</h3><pre>${JSON.stringify(reportsData, null, 2).substring(0, 500)}...</pre>`;
+                } else {
+                    results.innerHTML += `<p>Reports API failed: ${reportsResponse.status}</p>`;
+                }
+
+                // Test social media
+                console.log('Testing /api/social...');
+                const socialResponse = await fetch('http://localhost:8000/api/social');
+                if (socialResponse.ok) {
+                    const socialData = await socialResponse.json();
+                    results.innerHTML += `<h3>Social Media (${socialData.posts?.length || 0} items):</h3><pre>${JSON.stringify(socialData, null, 2).substring(0, 500)}...</pre>`;
+                } else {
+                    results.innerHTML += `<p>Social API failed: ${socialResponse.status}</p>`;
+                }
+
+            } catch (error) {
+                results.innerHTML += `<p>Error: ${error.message}</p>`;
+                console.error('API Test Error:', error);
+            }
+        }
+
+        // Run test when page loads
+        testAPI();
+    </script>
+</body>
+
+</html>

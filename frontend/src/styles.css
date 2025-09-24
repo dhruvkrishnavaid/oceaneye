@@ -2,6 +2,8 @@
 
 @import "tw-animate-css";
 
+@import "leaflet/dist/leaflet.css";
+
 @custom-variant dark (&:is(.dark *));
 
 body {
@@ -132,6 +134,7 @@ code {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }

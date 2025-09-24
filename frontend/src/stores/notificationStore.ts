@@ -94,12 +94,12 @@ const mockNotifications: Notification[] = [
 const fetchNotificationsAPI = async (): Promise<Notification[]> => {
   // Simulate API delay
   await new Promise(resolve => setTimeout(resolve, 1000));
-  
+
   // Simulate occasional API errors (5% chance)
   if (Math.random() < 0.05) {
     throw new Error('Failed to fetch notifications');
   }
-  
+
   return mockNotifications;
 };
 
@@ -111,64 +111,72 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
 
   setNotifications: (notifications: Notification[]) => {
     const unreadCount = notifications.filter(n => n.unread).length;
-    set({ 
+    set({
       notifications,
       unreadCount,
-      error: null 
+      error: null
     });
   },
 
   markAsRead: (id: number) => {
     const { notifications } = get();
-    const updatedNotifications = notifications.map(n => 
+    const updatedNotifications = notifications.map(n =>
       n.id === id ? { ...n, unread: false } : n
     );
     const unreadCount = updatedNotifications.filter(n => n.unread).length;
-    set({ 
+    set({
       notifications: updatedNotifications,
-      unreadCount 
+      unreadCount
     });
   },
 
   markAllAsRead: () => {
     const { notifications } = get();
     const updatedNotifications = notifications.map(n => ({ ...n, unread: false }));
-    set({ 
+    set({
       notifications: updatedNotifications,
-      unreadCount: 0 
+      unreadCount: 0
     });
   },
 
   markAsVerified: (id: number) => {
     const { notifications } = get();
-    const updatedNotifications = notifications.map(n => 
-      n.id === id ? { ...n, verified: 'verified' as const } : n
+    const updatedNotifications = notifications.map(n =>
+      n.id === id ? { ...n, verified: 'verified' as const, unread: false } : n
     );
-    set({ notifications: updatedNotifications });
+    const unreadCount = updatedNotifications.filter(n => n.unread).length;
+    set({
+      notifications: updatedNotifications,
+      unreadCount
+    });
   },
 
   markAsFake: (id: number) => {
     const { notifications } = get();
-    const updatedNotifications = notifications.map(n => 
-      n.id === id ? { ...n, verified: 'fake' as const } : n
+    const updatedNotifications = notifications.map(n =>
+      n.id === id ? { ...n, verified: 'fake' as const, unread: false } : n
     );
-    set({ notifications: updatedNotifications });
+    const unreadCount = updatedNotifications.filter(n => n.unread).length;
+    set({
+      notifications: updatedNotifications,
+      unreadCount
+    });
   },
 
   fetchNotifications: async () => {
     set({ isLoading: true, error: null });
-    
+
     try {
       const notifications = await fetchNotificationsAPI();
       const unreadCount = notifications.filter(n => n.unread).length;
-      set({ 
+      set({
         notifications,
         unreadCount,
         isLoading: false,
-        error: null 
+        error: null
       });
     } catch (error) {
-      set({ 
+      set({
         isLoading: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred'
       });

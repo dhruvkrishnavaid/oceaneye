@@ -8,8 +8,6 @@ import { Link } from "@tanstack/react-router";
 import {
   Activity,
   AlertTriangle,
-  Bell,
-  Clock,
   LogIn,
   LogOut,
   MapPin,
@@ -18,21 +16,16 @@ import {
   User,
   Users,
   Waves,
-  X,
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 
 export default function Header() {
   const { isAuthenticated, user, logout } = useAuthStore();
-  const { 
-    notifications, 
-    unreadCount, 
-    isLoading, 
-    markAsRead, 
-    markAllAsRead, 
-    fetchNotifications 
-  } = useNotificationStore();
-  
+
+  // Subscribe to unreadCount with proper reactivity
+  const unreadCount = useNotificationStore(state => state.unreadCount);
+  const fetchNotifications = useNotificationStore(state => state.fetchNotifications);
+
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
 
@@ -75,42 +68,6 @@ export default function Header() {
 
   const handleNotificationClick = () => {
     setShowNotifications(!showNotifications);
-  };
-
-  const getSeverityColor = (severity: string, unread: boolean) => {
-    const leftBorderColor =
-      severity === "high"
-        ? "border-l-4 border-l-red-500"
-        : severity === "medium"
-          ? "border-l-4 border-l-yellow-500"
-          : severity === "low"
-            ? "border-l-4 border-l-blue-500"
-            : "border-l-4 border-l-gray-500";
-
-    const backgroundColor = unread
-      ? severity === "high"
-        ? "bg-red-50"
-        : severity === "medium"
-          ? "bg-yellow-50"
-          : severity === "low"
-            ? "bg-blue-50"
-            : "bg-gray-50"
-      : "bg-white";
-
-    return `${leftBorderColor} ${backgroundColor}`;
-  };
-
-  const getSeverityBadgeColor = (severity: string) => {
-    switch (severity) {
-      case "high":
-        return "bg-red-500 text-white";
-      case "medium":
-        return "bg-yellow-500 text-white";
-      case "low":
-        return "bg-blue-500 text-white";
-      default:
-        return "bg-gray-500 text-white";
-    }
   };
 
   return (
