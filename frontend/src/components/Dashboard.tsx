@@ -14,6 +14,7 @@ import {
   MessageCircle,
   Navigation,
   Share2,
+  ShieldAlert,
   TrendingUp,
   Users,
   Waves,
@@ -182,11 +183,16 @@ export function Dashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">OceanEye Dashboard</h1>
-          <p className="text-muted-foreground">Real-time monitoring of coastal hazards and public awareness</p>
+          <p className="text-muted-foreground">
+            Real-time monitoring of coastal hazards and public awareness
+          </p>
         </div>
         <div className="flex items-center gap-4">
           <UserProfile />
-          <Select value={selectedTimeRange} onValueChange={setSelectedTimeRange}>
+          <Select
+            value={selectedTimeRange}
+            onValueChange={setSelectedTimeRange}
+          >
             <SelectTrigger className="w-32">
               <SelectValue />
             </SelectTrigger>
@@ -197,7 +203,7 @@ export function Dashboard() {
               <SelectItem value="30d">Last Month</SelectItem>
             </SelectContent>
           </Select>
-          
+
           <Select value={selectedLocation} onValueChange={setSelectedLocation}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="All Locations" />
@@ -217,7 +223,22 @@ export function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Reports</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Verified Incidents
+            </CardTitle>
+            <ShieldAlert className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">23</div>
+            <p className="text-xs text-muted-foreground">Requires attention</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">
+              Active Reports
+            </CardTitle>
             <AlertTriangle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -225,10 +246,12 @@ export function Dashboard() {
             <p className="text-xs text-muted-foreground">+12 from last hour</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Social Mentions</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Social Mentions
+            </CardTitle>
             <MessageCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -236,7 +259,7 @@ export function Dashboard() {
             <p className="text-xs text-muted-foreground">+89 from last hour</p>
           </CardContent>
         </Card>
-        
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active Users</CardTitle>
@@ -245,17 +268,6 @@ export function Dashboard() {
           <CardContent>
             <div className="text-2xl font-bold">328</div>
             <p className="text-xs text-muted-foreground">Online now</p>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Verified Incidents</CardTitle>
-            <Badge className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">23</div>
-            <p className="text-xs text-muted-foreground">Requires attention</p>
           </CardContent>
         </Card>
       </div>
@@ -278,10 +290,12 @@ export function Dashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Map Section - Placeholder */}
             <div className="lg:col-span-2">
-              <Card className='pb-0!'>
+              <Card className="pb-0!">
                 <CardHeader>
                   <CardTitle>Interactive Map</CardTitle>
-                  <CardDescription>Real-time locations of reported incidents</CardDescription>
+                  <CardDescription>
+                    Real-time locations of reported incidents
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="h-96 p-0">
                   <MapPlaceholder reports={mockUserReports} />
@@ -293,7 +307,10 @@ export function Dashboard() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">Recent Reports</h3>
-                <Select value={selectedSeverity} onValueChange={setSelectedSeverity}>
+                <Select
+                  value={selectedSeverity}
+                  onValueChange={setSelectedSeverity}
+                >
                   <SelectTrigger className="w-32">
                     <SelectValue placeholder="All Severities" />
                   </SelectTrigger>
@@ -306,22 +323,26 @@ export function Dashboard() {
                 </Select>
               </div>
 
-              <div className="space-y-3 max-h-96 overflow-y-auto">
+              <div className="space-y-3 overflow-y-auto max-h-106">
                 {mockUserReports.map((report) => (
                   <Card key={report.id} className="p-4">
                     <div className="space-y-3">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-2">
                           {getSeverityIcon(report.type)}
-                          <h4 className="font-medium text-sm">{report.title}</h4>
+                          <h4 className="font-medium text-sm">
+                            {report.title}
+                          </h4>
                         </div>
                         <Badge variant={getSeverityColor(report.severity)}>
                           {report.severity}
                         </Badge>
                       </div>
-                      
-                      <p className="text-sm text-muted-foreground">{report.description}</p>
-                      
+
+                      <p className="text-sm text-muted-foreground">
+                        {report.description}
+                      </p>
+
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <div className="flex items-center gap-1">
                           <MapPin className="h-3 w-3" />
@@ -332,11 +353,15 @@ export function Dashboard() {
                           {new Date(report.timestamp).toLocaleTimeString()}
                         </div>
                       </div>
-                      
+
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <span>by {report.author}</span>
-                          {report.verified && <Badge variant="outline" className="text-xs">Verified</Badge>}
+                          {report.verified && (
+                            <Badge variant="outline" className="text-xs">
+                              Verified
+                            </Badge>
+                          )}
                         </div>
                         <div className="flex items-center gap-3 text-xs text-muted-foreground">
                           {report.images > 0 && (
@@ -375,17 +400,29 @@ export function Dashboard() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {trendingHashtags.map((hashtag, index) => (
-                    <div key={index} className="flex items-center justify-between">
+                    <div
+                      key={index}
+                      className="flex items-center justify-between"
+                    >
                       <div className="flex items-center gap-2">
                         <Hash className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-sm font-medium">{hashtag.tag.slice(1)}</span>
+                        <span className="text-sm font-medium">
+                          {hashtag.tag.slice(1)}
+                        </span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground">{hashtag.count}</span>
-                        <TrendingUp className={`h-3 w-3 ${
-                          hashtag.trend === 'up' ? 'text-green-500' : 
-                          hashtag.trend === 'down' ? 'text-red-500' : 'text-gray-500'
-                        }`} />
+                        <span className="text-xs text-muted-foreground">
+                          {hashtag.count}
+                        </span>
+                        <TrendingUp
+                          className={`h-3 w-3 ${
+                            hashtag.trend === "up"
+                              ? "text-green-500"
+                              : hashtag.trend === "down"
+                                ? "text-red-500"
+                                : "text-gray-500"
+                          }`}
+                        />
                       </div>
                     </div>
                   ))}
@@ -396,7 +433,9 @@ export function Dashboard() {
             {/* Social Media Posts */}
             <div className="lg:col-span-3 space-y-4">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">Social Media Monitoring</h3>
+                <h3 className="text-lg font-semibold">
+                  Social Media Monitoring
+                </h3>
                 <Button variant="outline" size="sm">
                   <Share2 className="h-4 w-4 mr-2" />
                   Export Report
@@ -409,13 +448,23 @@ export function Dashboard() {
                     <div className="space-y-3">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3">
-                          <div className={`w-2 h-2 rounded-full ${getPlatformColor(post.platform)}`} />
+                          <div
+                            className={`w-2 h-2 rounded-full ${getPlatformColor(post.platform)}`}
+                          />
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="font-medium text-sm">{post.author}</span>
-                              {post.verified && <Badge variant="outline" className="text-xs">Verified</Badge>}
+                              <span className="font-medium text-sm">
+                                {post.author}
+                              </span>
+                              {post.verified && (
+                                <Badge variant="outline" className="text-xs">
+                                  Verified
+                                </Badge>
+                              )}
                             </div>
-                            <span className="text-xs text-muted-foreground">{post.platform}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {post.platform}
+                            </span>
                           </div>
                         </div>
                         <div className="text-xs text-muted-foreground">
@@ -427,7 +476,11 @@ export function Dashboard() {
 
                       <div className="flex flex-wrap gap-1">
                         {post.hashtags.map((tag, index) => (
-                          <Badge key={index} variant="secondary" className="text-xs">
+                          <Badge
+                            key={index}
+                            variant="secondary"
+                            className="text-xs"
+                          >
                             {tag}
                           </Badge>
                         ))}
@@ -439,21 +492,21 @@ export function Dashboard() {
                           {post.location}
                         </div>
                         <div className="flex items-center gap-4">
-                          {post.platform === 'Twitter' && (
+                          {post.platform === "Twitter" && (
                             <>
                               <span>❤️ {post.engagement.likes}</span>
                               <span>🔄 {post.engagement.retweets}</span>
                               <span>💬 {post.engagement.replies}</span>
                             </>
                           )}
-                          {post.platform === 'Facebook' && (
+                          {post.platform === "Facebook" && (
                             <>
                               <span>👍 {post.engagement.likes}</span>
                               <span>📤 {post.engagement.shares}</span>
                               <span>💬 {post.engagement.comments}</span>
                             </>
                           )}
-                          {post.platform === 'YouTube' && (
+                          {post.platform === "YouTube" && (
                             <>
                               <span>👁️ {post.engagement.views}</span>
                               <span>👍 {post.engagement.likes}</span>
@@ -471,5 +524,5 @@ export function Dashboard() {
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }
