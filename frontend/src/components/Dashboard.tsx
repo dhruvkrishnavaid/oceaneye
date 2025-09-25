@@ -6,7 +6,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useReportsStore } from '@/stores/reportsStore'
 import {
-  Activity,
   AlertTriangle,
   Camera,
   CheckCircle,
@@ -15,18 +14,20 @@ import {
   Hash,
   MapPin,
   MessageCircle,
-  Navigation,
   Share2,
   ShieldAlert,
   TrendingUp,
-  Waves,
-  Wind,
   X,
   XCircle
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import UserProfile from './UserProfile'
 import { InteractiveMap } from './InteractiveMap'
+import getSeverityColor from '@/lib/getSeverityColor'
+import getVerificationBadge from '@/lib/getVerificationBadge'
+import getSeverityIcon from '@/lib/getSeverityIcon'
+import getPlatformColor from '@/lib/getPlatformColor'
+import SeverityProgress from './SeverityProgress'
 
 // Mock data for social media posts
 const mockSocialPosts = [
@@ -80,7 +81,7 @@ const mockSocialPosts = [
   }
 ]
 
-// Mock trending hashtags
+// Mock trending hashtags (same as original)
 const trendingHashtags = [
   { tag: "#OceanAlert", count: 1245, trend: "up" },
   { tag: "#CoastalSafety", count: 892, trend: "up" },
@@ -88,54 +89,6 @@ const trendingHashtags = [
   { tag: "#StormSurge", count: 445, trend: "stable" },
   { tag: "#TsunamiWatch", count: 234, trend: "down" }
 ]
-
-const getSeverityColor = (severity: string) => {
-  switch (severity) {
-    case 'high': return 'destructive'
-    case 'medium': return 'default'
-    case 'low': return 'secondary'
-    default: return 'secondary'
-  }
-}
-
-const getSeverityIcon = (type: string) => {
-  switch (type) {
-    case 'high_waves': return <Waves className="h-4 w-4" />
-    case 'storm_surge': return <Wind className="h-4 w-4" />
-    case 'unusual_tide': return <Navigation className="h-4 w-4" />
-    case 'coastal_damage': return <AlertTriangle className="h-4 w-4" />
-    default: return <Activity className="h-4 w-4" />
-  }
-}
-
-const getPlatformColor = (platform: string) => {
-  switch (platform.toLowerCase()) {
-    case 'twitter': return 'bg-blue-500'
-    case 'facebook': return 'bg-blue-600'
-    case 'youtube': return 'bg-red-500'
-    default: return 'bg-gray-500'
-  }
-}
-
-const getSeverityBadgeVariant = (severity: string): "destructive" | "default" | "secondary" | "outline" => {
-  switch (severity) {
-    case 'high': return 'destructive'
-    case 'medium': return 'default'
-    case 'low': return 'secondary'
-    default: return 'outline'
-  }
-}
-
-const getVerificationBadge = (verified?: 'pending' | 'verified' | 'fake') => {
-  switch (verified) {
-    case 'verified':
-      return <Badge className="bg-green-500 text-white">Verified</Badge>;
-    case 'fake':
-      return <Badge className="bg-red-500 text-white">Fake News</Badge>;
-    default:
-      return <Badge className="bg-yellow-500 text-white">Pending</Badge>;
-  }
-};
 
 export function Dashboard() {
   const [selectedLocation, setSelectedLocation] = useState<string>('all')
@@ -181,12 +134,10 @@ export function Dashboard() {
             Real-time monitoring of coastal hazards and public awareness
           </p>
         </div>
+        {/* Header controls remain the same */}
         <div className="flex items-center gap-4">
           <UserProfile />
-          <Select
-            value={selectedTimeRange}
-            onValueChange={setSelectedTimeRange}
-          >
+          <Select value={selectedTimeRange} onValueChange={setSelectedTimeRange}>
             <SelectTrigger className="w-32">
               <SelectValue />
             </SelectTrigger>
@@ -197,7 +148,6 @@ export function Dashboard() {
               <SelectItem value="30d">Last Month</SelectItem>
             </SelectContent>
           </Select>
-
           <Select value={selectedLocation} onValueChange={setSelectedLocation}>
             <SelectTrigger className="w-40">
               <SelectValue placeholder="All Locations" />
@@ -277,7 +227,7 @@ export function Dashboard() {
         </Card>
       </div>
 
-      {/* Main Dashboard Tabs */}
+      {/* Tabs section - simplified for now */}
       <Tabs defaultValue="reports" className="space-y-4">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="reports" className="flex items-center gap-2">
@@ -290,10 +240,9 @@ export function Dashboard() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Citizen Reports Tab */}
         <TabsContent value="reports" className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Map Section - Placeholder */}
+            {/* Map Section */}
             <div className="lg:col-span-2">
               <Card className="pb-0!">
                 <CardHeader>
@@ -312,18 +261,15 @@ export function Dashboard() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">Recent Reports</h3>
-                <Select
-                  value={selectedSeverity}
-                  onValueChange={setSelectedSeverity}
-                >
+                <Select value={selectedSeverity} onValueChange={setSelectedSeverity}>
                   <SelectTrigger className="w-32">
                     <SelectValue placeholder="All Severities" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Levels</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="low">Low</SelectItem>
+                    <SelectItem value="high">High (75+)</SelectItem>
+                    <SelectItem value="medium">Medium (25-74)</SelectItem>
+                    <SelectItem value="low">Low (0-24)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -333,7 +279,9 @@ export function Dashboard() {
                   .filter(
                     (report) =>
                       selectedSeverity === "all" ||
-                      report.severity === selectedSeverity,
+                      (selectedSeverity === "high" && report.severity >= 75) ||
+                      (selectedSeverity === "medium" && report.severity >= 25 && report.severity < 75) ||
+                      (selectedSeverity === "low" && report.severity < 25),
                   )
                   .map((report) => (
                     <Card key={report.id} className="p-4">
@@ -345,11 +293,9 @@ export function Dashboard() {
                               {report.title}
                             </h4>
                           </div>
-                          <Badge
-                            variant={getSeverityBadgeVariant(report.severity)}
-                          >
-                            {report.severity}
-                          </Badge>
+                          <div className="min-w-0 w-24">
+                            <SeverityProgress severity={report.severity} />
+                          </div>
                         </div>
 
                         <p className="text-sm text-muted-foreground">
@@ -423,19 +369,11 @@ export function Dashboard() {
                           {hashtag.tag.slice(1)}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1">
                         <span className="text-xs text-muted-foreground">
                           {hashtag.count}
                         </span>
-                        <TrendingUp
-                          className={`h-3 w-3 ${
-                            hashtag.trend === "up"
-                              ? "text-green-500"
-                              : hashtag.trend === "down"
-                                ? "text-red-500"
-                                : "text-gray-500"
-                          }`}
-                        />
+                        <TrendingUp className="h-3 w-3 text-gray-500" />
                       </div>
                     </div>
                   ))}
@@ -544,13 +482,13 @@ export function Dashboard() {
       >
         <DialogContent className="max-w-4xl max-h-[85vh] p-0 overflow-hidden">
           <DialogHeader className="p-6 pb-4 border-b border-gray-200">
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2" tabIndex={-1}>
               <AlertTriangle className="h-5 w-5" />
               Active Reports Management
             </DialogTitle>
           </DialogHeader>
 
-          <div className="max-h-[calc(85vh-120px)] overflow-y-auto px-6 py-4">
+          <div className="max-h-[calc(85vh-120px)] overflow-y-auto px-6 py-4" tabIndex={0}>
             {pendingReports.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
                 <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-gray-300" />
@@ -561,7 +499,8 @@ export function Dashboard() {
                 {pendingReports.map((report) => (
                   <div
                     key={report.id}
-                    className={`p-4 border-l-4 ${getSeverityColor(report.severity)} border border-gray-200 rounded-lg shadow-sm`}
+                    className="p-4 border-l-4 border border-gray-200 rounded-lg shadow-sm"
+                    style={{ borderLeftColor: getSeverityColor(report.severity) }}
                   >
                     <div className="flex flex-col space-y-3">
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
@@ -575,11 +514,10 @@ export function Dashboard() {
                               <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>
                             )}
                             {getVerificationBadge(report.verified)}
-                            <Badge
-                              variant={getSeverityBadgeVariant(report.severity)}
-                            >
-                              {report.severity}
-                            </Badge>
+                          </div>
+                          
+                          <div className="flex flex-col items-start gap-1 pb-2 min-w-0 w-32 mt-2">
+                            <SeverityProgress severity={report.severity} />
                           </div>
 
                           <p className="text-gray-700 text-sm mb-3 break-words">
@@ -687,13 +625,13 @@ export function Dashboard() {
       >
         <DialogContent className="max-w-4xl max-h-[85vh] p-0 overflow-hidden">
           <DialogHeader className="p-6 pb-4 border-b border-gray-200">
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2" tabIndex={-1}>
               <ShieldAlert className="h-5 w-5 text-green-600" />
               Verified Reports ({verifiedCount})
             </DialogTitle>
           </DialogHeader>
 
-          <div className="max-h-[calc(85vh-120px)] overflow-y-auto px-6 py-4">
+          <div className="max-h-[calc(85vh-120px)] overflow-y-auto px-6 py-4" tabIndex={0}>
             {verifiedReports.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
                 <ShieldAlert className="h-12 w-12 mx-auto mb-4 text-gray-300" />
@@ -704,7 +642,8 @@ export function Dashboard() {
                 {verifiedReports.map((report) => (
                   <div
                     key={report.id}
-                    className="p-4 border border-gray-200 rounded-lg shadow-sm"
+                    className="p-4 border-l-4 border border-gray-200 rounded-lg shadow-sm"
+                    style={{ borderLeftColor: getSeverityColor(report.severity) }}
                   >
                     <div className="flex flex-col space-y-3">
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
@@ -716,11 +655,10 @@ export function Dashboard() {
                             <Badge className="bg-green-500 text-white">
                               Verified
                             </Badge>
-                            <Badge
-                              variant={getSeverityBadgeVariant(report.severity)}
-                            >
-                              {report.severity}
-                            </Badge>
+                          </div>
+                          
+                          <div className="flex flex-col items-start gap-1 pb-2 min-w-0 w-32 mt-2">
+                            <SeverityProgress severity={report.severity} />
                           </div>
 
                           <p className="text-gray-700 text-sm mb-3 break-words">
@@ -794,13 +732,13 @@ export function Dashboard() {
       <Dialog open={showFakePostsModal} onOpenChange={setShowFakePostsModal}>
         <DialogContent className="max-w-4xl max-h-[85vh] p-0 overflow-hidden">
           <DialogHeader className="p-6 pb-4 border-b border-gray-200">
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2" tabIndex={-1}>
               <XCircle className="h-5 w-5 text-red-600" />
               Fake Posts ({fakeCount})
             </DialogTitle>
           </DialogHeader>
 
-          <div className="max-h-[calc(85vh-120px)] overflow-y-auto px-6 py-4">
+          <div className="max-h-[calc(85vh-120px)] overflow-y-auto px-6 py-4" tabIndex={0}>
             {fakeReports.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
                 <XCircle className="h-12 w-12 mx-auto mb-4 text-gray-300" />
@@ -823,11 +761,10 @@ export function Dashboard() {
                             <Badge className="bg-red-500 text-white">
                               Fake
                             </Badge>
-                            <Badge
-                              variant={getSeverityBadgeVariant(report.severity)}
-                            >
-                              {report.severity}
-                            </Badge>
+                          </div>
+                          
+                          <div className="flex flex-col items-start gap-1 pb-2 min-w-0 w-32 mt-2">
+                            <SeverityProgress severity={report.severity} />
                           </div>
 
                           <p className="text-gray-700 text-sm mb-3 break-words">

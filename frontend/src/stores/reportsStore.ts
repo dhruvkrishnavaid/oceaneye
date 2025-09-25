@@ -9,7 +9,7 @@ export interface Report {
   coordinates: [number, number];
   timestamp: string;
   time: string; // human readable time
-  severity: 'high' | 'medium' | 'low';
+  severity: number; // 0-100, where 100 is highest severity
   type: string;
   author: string;
   unread: boolean;
@@ -51,7 +51,7 @@ const mockReports: Report[] = [
     coordinates: [13.0478, 80.2619],
     timestamp: "2025-09-22T10:30:00Z",
     time: "2 minutes ago",
-    severity: "high",
+    severity: 85,
     type: "high_waves",
     author: "Coastal Volunteer",
     unread: true,
@@ -68,7 +68,7 @@ const mockReports: Report[] = [
     coordinates: [17.6868, 83.2185],
     timestamp: "2025-09-22T09:15:00Z",
     time: "15 minutes ago",
-    severity: "high",
+    severity: 90,
     type: "storm_surge",
     author: "Port Authority",
     unread: true,
@@ -85,7 +85,7 @@ const mockReports: Report[] = [
     coordinates: [20.5937, 78.9629], // India center
     timestamp: "2025-09-22T07:00:00Z",
     time: "1 hour ago",
-    severity: "low",
+    severity: 15,
     type: "system_update",
     author: "System Administrator",
     unread: false,
@@ -102,7 +102,7 @@ const mockReports: Report[] = [
     coordinates: [8.4004, 76.9784],
     timestamp: "2025-09-22T06:20:00Z",
     time: "2 hours ago",
-    severity: "medium",
+    severity: 55,
     type: "coastal_damage",
     author: "Environmental Group",
     unread: false,
@@ -119,7 +119,7 @@ const mockReports: Report[] = [
     coordinates: [15.0000, 85.0000],
     timestamp: "2025-09-22T05:15:00Z",
     time: "4 hours ago",
-    severity: "medium",
+    severity: 45,
     type: "weather_advisory",
     author: "Fake Weather Service",
     unread: false,
@@ -136,7 +136,7 @@ const mockReports: Report[] = [
     coordinates: [13.0827, 80.2707],
     timestamp: "2025-09-22T04:30:00Z",
     time: "6 hours ago",
-    severity: "low",
+    severity: 20,
     type: "maintenance",
     author: "Maintenance Team",
     unread: false,
@@ -153,7 +153,7 @@ const mockReports: Report[] = [
     coordinates: [19.8135, 85.8312],
     timestamp: "2025-09-22T02:45:00Z",
     time: "8 hours ago",
-    severity: "medium",
+    severity: 60,
     type: "unusual_tide",
     author: "Local Fisherman",
     unread: true,
@@ -170,7 +170,7 @@ const mockReports: Report[] = [
     coordinates: [8.4875, 77.6784],
     timestamp: "2025-09-21T10:00:00Z",
     time: "1 day ago",
-    severity: "low",
+    severity: 10,
     type: "drill",
     author: "Emergency Management",
     unread: false,
