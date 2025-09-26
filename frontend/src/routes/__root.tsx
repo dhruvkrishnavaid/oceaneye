@@ -25,7 +25,7 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "OceanEye - Coastal Hazard Monitoring Platform",
+        title: "OceanEye - Coastal Hazard Monitoring & Reporting Platform",
       },
       {
         name: "description",

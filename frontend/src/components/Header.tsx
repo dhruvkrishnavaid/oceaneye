@@ -19,7 +19,7 @@ import { useState, useEffect, useRef } from "react";
 
 export default function Header() {
   const { isAuthenticated, user, logout } = useAuthStore();
-  
+
   const [showNotifications, setShowNotifications] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
 
@@ -61,14 +61,13 @@ export default function Header() {
         {/* Logo Section */}
         <Link
           to="/"
-          className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+          className="flex items-center space-x-3 hover:opacity-80 transition-opacity duration-300"
         >
-          <div className="relative">
-            <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-full blur opacity-30"></div>
-            <div className="relative bg-white/10 p-2 rounded-full backdrop-blur border border-white/20">
-              <Waves className="h-6 w-6 text-cyan-300" />
-            </div>
-          </div>
+          <img
+            src="/android-chrome-512x512.png"
+            alt="Logo"
+            className="h-10 w-10 rounded-full"
+          />
           <div className="flex flex-col">
             <span className="text-xl font-bold bg-gradient-to-r from-white to-cyan-200 bg-clip-text text-transparent">
               OceanEye
@@ -227,15 +226,19 @@ export default function Header() {
                     <div className="text-xs text-cyan-200 font-medium mb-3 px-3">
                       FEATURES
                     </div>
-                    
+
                     <Button
                       variant="ghost"
                       className="w-full justify-start text-white hover:bg-white/10 h-10 mb-2"
                     >
                       <Waves className="mr-3 h-4 w-4" />
                       <div className="text-left">
-                        <div className="text-sm font-medium">Citizen Reports</div>
-                        <div className="text-xs text-cyan-200">Community Alerts</div>
+                        <div className="text-sm font-medium">
+                          Citizen Reports
+                        </div>
+                        <div className="text-xs text-cyan-200">
+                          Community Alerts
+                        </div>
                       </div>
                     </Button>
 
@@ -245,8 +248,12 @@ export default function Header() {
                     >
                       <Activity className="mr-3 h-4 w-4" />
                       <div className="text-left">
-                        <div className="text-sm font-medium">Social Monitoring</div>
-                        <div className="text-xs text-cyan-200">Social Media Analysis</div>
+                        <div className="text-sm font-medium">
+                          Social Monitoring
+                        </div>
+                        <div className="text-xs text-cyan-200">
+                          Social Media Analysis
+                        </div>
                       </div>
                     </Button>
 
@@ -256,8 +263,12 @@ export default function Header() {
                     >
                       <MapPin className="mr-3 h-4 w-4" />
                       <div className="text-left">
-                        <div className="text-sm font-medium">Interactive Map</div>
-                        <div className="text-xs text-cyan-200">Real-time Locations</div>
+                        <div className="text-sm font-medium">
+                          Interactive Map
+                        </div>
+                        <div className="text-xs text-cyan-200">
+                          Real-time Locations
+                        </div>
                       </div>
                     </Button>
 
@@ -267,8 +278,12 @@ export default function Header() {
                     >
                       <AlertTriangle className="mr-3 h-4 w-4" />
                       <div className="text-left">
-                        <div className="text-sm font-medium">Early Warnings</div>
-                        <div className="text-xs text-cyan-200">Hazard Alerts</div>
+                        <div className="text-sm font-medium">
+                          Early Warnings
+                        </div>
+                        <div className="text-xs text-cyan-200">
+                          Hazard Alerts
+                        </div>
                       </div>
                     </Button>
                   </div>
@@ -324,7 +339,7 @@ export default function Header() {
                   <div className="text-xs text-cyan-200 font-medium mb-2 px-3">
                     SYSTEM STATUS
                   </div>
-                  
+
                   <Card className="bg-white/10 border-white/20 text-white">
                     <CardContent className="p-3">
                       <div className="flex items-center justify-between">
@@ -346,7 +361,9 @@ export default function Header() {
                           <Users className="h-4 w-4 text-cyan-300" />
                           <span className="text-sm font-medium">Online</span>
                         </div>
-                        <span className="text-cyan-100 font-mono text-sm">328</span>
+                        <span className="text-cyan-100 font-mono text-sm">
+                          328
+                        </span>
                       </div>
                     </CardContent>
                   </Card>

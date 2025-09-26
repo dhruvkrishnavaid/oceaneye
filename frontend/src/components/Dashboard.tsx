@@ -1,10 +1,27 @@
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useReportsStore } from '@/stores/reportsStore'
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useReportsStore } from "@/stores/reportsStore";
 import {
   AlertTriangle,
   Camera,
@@ -18,68 +35,72 @@ import {
   ShieldAlert,
   TrendingUp,
   X,
-  XCircle
-} from 'lucide-react'
-import { useState, useEffect } from 'react'
-import UserProfile from './UserProfile'
-import { InteractiveMap } from './InteractiveMap'
-import getSeverityColor from '@/lib/getSeverityColor'
-import getVerificationBadge from '@/lib/getVerificationBadge'
-import getSeverityIcon from '@/lib/getSeverityIcon'
-import getPlatformColor from '@/lib/getPlatformColor'
-import SeverityProgress from './SeverityProgress'
+  XCircle,
+} from "lucide-react";
+import { useState, useEffect } from "react";
+import UserProfile from "./UserProfile";
+import { InteractiveMap } from "./InteractiveMap";
+import getSeverityColor from "@/lib/getSeverityColor";
+import getVerificationBadge from "@/lib/getVerificationBadge";
+import getSeverityIcon from "@/lib/getSeverityIcon";
+import getPlatformColor from "@/lib/getPlatformColor";
+import SeverityProgress from "./SeverityProgress";
 
 // Mock data for social media posts
 const mockSocialPosts = [
   {
     id: 1,
     platform: "Twitter",
-    content: "Massive waves hitting the shore at #MarinaBeach! Stay safe everyone 🌊 #ChennaiWeather #OceanAlert",
+    content:
+      "Massive waves hitting the shore at #MarinaBeach! Stay safe everyone 🌊 #ChennaiWeather #OceanAlert",
     author: "@Chennai_Updates",
     timestamp: "2025-09-22T11:45:00Z",
     engagement: { likes: 245, retweets: 89, replies: 34 },
     hashtags: ["#MarinaBeach", "#ChennaiWeather", "#OceanAlert"],
     location: "Chennai, Tamil Nadu",
     sentiment: "concern",
-    verified: true
+    verified: true,
   },
   {
     id: 2,
     platform: "Facebook",
-    content: "Fishermen advised not to venture into sea today due to rough weather conditions. Waves up to 4m expected.",
+    content:
+      "Fishermen advised not to venture into sea today due to rough weather conditions. Waves up to 4m expected.",
     author: "Kerala Fisheries Department",
     timestamp: "2025-09-22T10:20:00Z",
     engagement: { likes: 156, shares: 78, comments: 23 },
     hashtags: ["#FishermenSafety", "#KeralaWeather"],
     location: "Kerala",
     sentiment: "advisory",
-    verified: true
+    verified: true,
   },
   {
     id: 3,
     platform: "Twitter",
-    content: "Beautiful but dangerous waves at #PuriBeach today. Tourists please maintain safe distance! 📸 #OdishaCoast",
+    content:
+      "Beautiful but dangerous waves at #PuriBeach today. Tourists please maintain safe distance! 📸 #OdishaCoast",
     author: "@OdishaTourism",
     timestamp: "2025-09-22T09:55:00Z",
     engagement: { likes: 89, retweets: 23, replies: 12 },
     hashtags: ["#PuriBeach", "#OdishaCoast", "#SafetyFirst"],
     location: "Puri, Odisha",
     sentiment: "caution",
-    verified: true
+    verified: true,
   },
   {
     id: 4,
     platform: "YouTube",
-    content: "Live: Storm surge footage from Visakhapatnam port - Emergency response in action",
+    content:
+      "Live: Storm surge footage from Visakhapatnam port - Emergency response in action",
     author: "News24x7",
     timestamp: "2025-09-22T09:30:00Z",
     engagement: { views: 12500, likes: 234, comments: 67 },
     hashtags: ["#StormSurge", "#Visakhapatnam", "#EmergencyResponse"],
     location: "Visakhapatnam, Andhra Pradesh",
     sentiment: "urgent",
-    verified: true
-  }
-]
+    verified: true,
+  },
+];
 
 // Mock trending hashtags (same as original)
 const trendingHashtags = [
@@ -87,19 +108,20 @@ const trendingHashtags = [
   { tag: "#CoastalSafety", count: 892, trend: "up" },
   { tag: "#MarinaBeach", count: 567, trend: "up" },
   { tag: "#StormSurge", count: 445, trend: "stable" },
-  { tag: "#TsunamiWatch", count: 234, trend: "down" }
-]
+  { tag: "#TsunamiWatch", count: 234, trend: "down" },
+];
 
 export function Dashboard() {
-  const [selectedLocation, setSelectedLocation] = useState<string>('all')
-  const [selectedSeverity, setSelectedSeverity] = useState<string>('all')
-  const [selectedTimeRange, setSelectedTimeRange] = useState<string>('24h')
-  const [showActiveReportsModal, setShowActiveReportsModal] = useState(false)
-  const [showVerifiedReportsModal, setShowVerifiedReportsModal] = useState(false)
-  const [showFakePostsModal, setShowFakePostsModal] = useState(false)
-  
-  const { 
-    reports, 
+  const [selectedLocation, setSelectedLocation] = useState<string>("all");
+  const [selectedSeverity, setSelectedSeverity] = useState<string>("all");
+  const [selectedTimeRange, setSelectedTimeRange] = useState<string>("24h");
+  const [showActiveReportsModal, setShowActiveReportsModal] = useState(false);
+  const [showVerifiedReportsModal, setShowVerifiedReportsModal] =
+    useState(false);
+  const [showFakePostsModal, setShowFakePostsModal] = useState(false);
+
+  const {
+    reports,
     fetchReports,
     markAsVerified,
     markAsFake,
@@ -109,7 +131,7 @@ export function Dashboard() {
     getVerifiedReports,
     getFakeReports,
     getUnreadCount,
-    getVerifiedCount
+    getVerifiedCount,
   } = useReportsStore();
 
   // Get computed values
@@ -127,8 +149,8 @@ export function Dashboard() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+        <div className="text-center sm:text-left">
           <h1 className="text-3xl font-bold">OceanEye Dashboard</h1>
           <p className="text-muted-foreground">
             Real-time monitoring of coastal hazards and public awareness
@@ -136,8 +158,10 @@ export function Dashboard() {
         </div>
         {/* Header controls remain the same */}
         <div className="flex items-center gap-4">
-          <UserProfile />
-          <Select value={selectedTimeRange} onValueChange={setSelectedTimeRange}>
+          <Select
+            value={selectedTimeRange}
+            onValueChange={setSelectedTimeRange}
+          >
             <SelectTrigger className="w-32">
               <SelectValue />
             </SelectTrigger>
@@ -261,7 +285,10 @@ export function Dashboard() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-semibold">Recent Reports</h3>
-                <Select value={selectedSeverity} onValueChange={setSelectedSeverity}>
+                <Select
+                  value={selectedSeverity}
+                  onValueChange={setSelectedSeverity}
+                >
                   <SelectTrigger className="w-32">
                     <SelectValue placeholder="All Severities" />
                   </SelectTrigger>
@@ -280,7 +307,9 @@ export function Dashboard() {
                     (report) =>
                       selectedSeverity === "all" ||
                       (selectedSeverity === "high" && report.severity >= 75) ||
-                      (selectedSeverity === "medium" && report.severity >= 25 && report.severity < 75) ||
+                      (selectedSeverity === "medium" &&
+                        report.severity >= 25 &&
+                        report.severity < 75) ||
                       (selectedSeverity === "low" && report.severity < 25),
                   )
                   .map((report) => (
@@ -488,7 +517,10 @@ export function Dashboard() {
             </DialogTitle>
           </DialogHeader>
 
-          <div className="max-h-[calc(85vh-120px)] overflow-y-auto px-6 py-4" tabIndex={0}>
+          <div
+            className="max-h-[calc(85vh-120px)] overflow-y-auto px-6 py-4"
+            tabIndex={0}
+          >
             {pendingReports.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
                 <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-gray-300" />
@@ -500,7 +532,9 @@ export function Dashboard() {
                   <div
                     key={report.id}
                     className="p-4 border-l-4 border border-gray-200 rounded-lg shadow-sm"
-                    style={{ borderLeftColor: getSeverityColor(report.severity) }}
+                    style={{
+                      borderLeftColor: getSeverityColor(report.severity),
+                    }}
                   >
                     <div className="flex flex-col space-y-3">
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
@@ -515,7 +549,7 @@ export function Dashboard() {
                             )}
                             {getVerificationBadge(report.verified)}
                           </div>
-                          
+
                           <div className="flex flex-col items-start gap-1 pb-2 min-w-0 w-32 mt-2">
                             <SeverityProgress severity={report.severity} />
                           </div>
@@ -631,7 +665,10 @@ export function Dashboard() {
             </DialogTitle>
           </DialogHeader>
 
-          <div className="max-h-[calc(85vh-120px)] overflow-y-auto px-6 py-4" tabIndex={0}>
+          <div
+            className="max-h-[calc(85vh-120px)] overflow-y-auto px-6 py-4"
+            tabIndex={0}
+          >
             {verifiedReports.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
                 <ShieldAlert className="h-12 w-12 mx-auto mb-4 text-gray-300" />
@@ -643,7 +680,9 @@ export function Dashboard() {
                   <div
                     key={report.id}
                     className="p-4 border-l-4 border border-gray-200 rounded-lg shadow-sm"
-                    style={{ borderLeftColor: getSeverityColor(report.severity) }}
+                    style={{
+                      borderLeftColor: getSeverityColor(report.severity),
+                    }}
                   >
                     <div className="flex flex-col space-y-3">
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
@@ -656,7 +695,7 @@ export function Dashboard() {
                               Verified
                             </Badge>
                           </div>
-                          
+
                           <div className="flex flex-col items-start gap-1 pb-2 min-w-0 w-32 mt-2">
                             <SeverityProgress severity={report.severity} />
                           </div>
@@ -738,7 +777,10 @@ export function Dashboard() {
             </DialogTitle>
           </DialogHeader>
 
-          <div className="max-h-[calc(85vh-120px)] overflow-y-auto px-6 py-4" tabIndex={0}>
+          <div
+            className="max-h-[calc(85vh-120px)] overflow-y-auto px-6 py-4"
+            tabIndex={0}
+          >
             {fakeReports.length === 0 ? (
               <div className="text-center py-12 text-gray-500">
                 <XCircle className="h-12 w-12 mx-auto mb-4 text-gray-300" />
@@ -762,7 +804,7 @@ export function Dashboard() {
                               Fake
                             </Badge>
                           </div>
-                          
+
                           <div className="flex flex-col items-start gap-1 pb-2 min-w-0 w-32 mt-2">
                             <SeverityProgress severity={report.severity} />
                           </div>
