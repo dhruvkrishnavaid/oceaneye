@@ -6,6 +6,21 @@ A comprehensive coastal hazard monitoring platform built for Smart India Hackath
 
 OceanEye is a unified platform that enables citizens, coastal residents, volunteers, and disaster managers to report observations during hazardous ocean events and monitor public communication trends via social media. The platform provides real-time monitoring and analysis of coastal hazards across India's 7,517 km coastline.
 
+## 📋 Table of Contents
+
+- [🎯 Problem Statement](#-problem-statement-sih25039)
+- [✨ Key Features](#-key-features)
+- [🛠️ Technical Stack](#️-technical-stack)
+- [🚀 Getting Started](#-getting-started)
+- [📱 Building For Production](#-building-for-production)
+- [📊 Dashboard Features](#-dashboard-features)
+- [🛠️ Development](#️-development)
+- [🧭 Routing](#-routing)
+- [Data Fetching](#data-fetching)
+- [State Management](#state-management)
+- [🧹 Demo Files](#-demo-files)
+- [📚 Learn More](#-learn-more)
+
 ## 🎯 Problem Statement (SIH25039)
 
 **Title:** Development of a Unified Platform for Crowdsourced Coastal Hazard Reporting and Social Media Monitoring for Enhanced Early Warning Systems
@@ -69,7 +84,9 @@ bun run build
 - **Trending Analysis**: Hashtag trends and engagement metrics
 - **Advanced Filtering**: Location, time, and severity-based filters
 
-## Testing
+## 🛠️ Development
+
+### Testing
 
 This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
 
@@ -77,15 +94,13 @@ This project uses [Vitest](https://vitest.dev/) for testing. You can run the tes
 bunx --bun run test
 ```
 
-## Styling
+### Styling
 
 This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
 
-
-## Linting & Formatting
+### Linting & Formatting
 
 This project uses [Biome](https://biomejs.dev/) for linting and formatting. The following scripts are available:
-
 
 ```bash
 bunx --bun run lint
@@ -93,10 +108,9 @@ bunx --bun run format
 bunx --bun run check
 ```
 
+### UI Components
 
-## Shadcn
-
-Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
+Add components using the latest version of [Shadcn](https://ui.shadcn.com/):
 
 ```bash
 pnpx shadcn@latest add button
@@ -104,16 +118,17 @@ pnpx shadcn@latest add button
 
 
 
-## Routing
-This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a file based router. Which means that the routes are managed as files in `src/routes`.
+## 🧭 Routing
+
+This project uses [TanStack Router](https://tanstack.com/router) with a file-based routing system. Routes are managed as files in the [`src/routes`](src/routes) directory.
 
 ### Adding A Route
 
-To add a new route to your application just add another a new file in the `./src/routes` directory.
+To add a new route to your application, simply create a new file in the [`./src/routes`](./src/routes) directory.
 
-TanStack will automatically generate the content of the route file for you.
+TanStack Router will automatically generate the content of the route file for you.
 
-Now that you have two routes you can use a `Link` component to navigate between them.
+Once you have multiple routes, you can use the `Link` component to navigate between them.
 
 ### Adding Links
 
@@ -135,7 +150,7 @@ More information on the `Link` component can be found in the [Link documentation
 
 ### Using A Layout
 
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you use the `<Outlet />` component.
+In the file-based routing setup, the layout is located in [`src/routes/__root.tsx`](src/routes/__root.tsx). Anything you add to the root route will appear in all routes. The route content will appear in the JSX where you use the `<Outlet />` component.
 
 Here is an example layout that includes a header:
 
@@ -199,9 +214,9 @@ const peopleRoute = createRoute({
 
 Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
 
-### React-Query
+### TanStack Query
 
-React-Query is an excellent addition or alternative to route loading and integrating it into you application is a breeze.
+TanStack Query is an excellent addition or alternative to route loading and integrating it into your application is a breeze.
 
 First add your dependencies:
 
@@ -209,7 +224,7 @@ First add your dependencies:
 bun install @tanstack/react-query @tanstack/react-query-devtools
 ```
 
-Next we'll need to create a query client and provider. We recommend putting those in `main.tsx`.
+Next we'll need to create a query client and provider. We recommend putting those in [`main.tsx`](src/main.tsx).
 
 ```tsx
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -278,7 +293,7 @@ function App() {
 export default App;
 ```
 
-You can find out everything you need to know on how to use React-Query in the [React-Query documentation](https://tanstack.com/query/latest/docs/framework/react/overview).
+You can find out everything you need to know on how to use TanStack Query in the [TanStack Query documentation](https://tanstack.com/query/latest/docs/framework/react/overview).
 
 ## State Management
 
@@ -290,7 +305,7 @@ First you need to add TanStack Store as a dependency:
 bun install @tanstack/store
 ```
 
-Now let's create a simple counter in the `src/App.tsx` file as a demonstration.
+Now let's create a simple counter in the [`src/App.tsx`](src/App.tsx) file as a demonstration.
 
 ```tsx
 import { useStore } from "@tanstack/react-store";
@@ -353,10 +368,10 @@ Once we've created the derived store we can use it in the `App` component just l
 
 You can find out everything you need to know on how to use TanStack Store in the [TanStack Store documentation](https://tanstack.com/store/latest).
 
-# Demo files
+## 🧹 Demo Files
 
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
+Files prefixed with `demo` can be safely deleted. They are included to provide a starting point for you to explore and experiment with the features you've installed.
 
-# Learn More
+## 📚 Learn More
 
 You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
