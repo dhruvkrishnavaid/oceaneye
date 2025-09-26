@@ -16,6 +16,9 @@ import {
   MessageCircle,
   TrendingUp,
   Globe,
+  Search,
+  ChartNetwork,
+  ImageIcon,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -247,19 +250,7 @@ function HomePage() {
           <Card className="bg-gray-800 text-center text-white border border-gray-600">
             <CardHeader>
               <div className="mx-auto bg-blue-600 p-3 rounded-full w-fit">
-                <svg
-                  className="h-8 w-8 text-white"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12h6m2 0a2 2 0 100-4H7a2 2 0 100 4h10zm0 0a2 2 0 110 4H7a2 2 0 110-4h10z"
-                  />
-                </svg>
+                <Search />
               </div>
               <CardTitle className="pt-2">Content Analysis</CardTitle>
             </CardHeader>
@@ -276,19 +267,7 @@ function HomePage() {
           <Card className="bg-gray-800 text-center text-white border border-gray-600">
             <CardHeader>
               <div className="mx-auto bg-green-600 p-3 rounded-full w-fit">
-                <svg
-                  className="h-8 w-8 text-white"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
+                <ChartNetwork />
               </div>
               <CardTitle className="pt-2">Context Analysis</CardTitle>
             </CardHeader>
@@ -304,21 +283,7 @@ function HomePage() {
 
           <Card className="bg-gray-800 text-center text-white border border-gray-600">
             <CardHeader>
-              <div className="mx-auto bg-purple-600 p-3 rounded-full w-fit">
-                <svg
-                  className="h-8 w-8 text-white"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </div>
+              <div className="mx-auto bg-purple-600 p-3 rounded-full w-fit"><ImageIcon /></div>
               <CardTitle className="pt-2">Evidence Analysis</CardTitle>
             </CardHeader>
             <CardContent>
