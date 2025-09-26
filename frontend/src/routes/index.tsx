@@ -235,6 +235,104 @@ function HomePage() {
         </div>
       </section>
 
+      {/* Fake News Detection Pipeline Section */}
+      <section className="bg-gray-900 py-16 text-white flex flex-col items-center">
+        <div className="text-center mb-12">
+          <h3 className="text-3xl font-bold mb-4">
+            Fake News Detection Pipeline
+          </h3>
+        </div>
+
+        <div className="flex flex-col sm:flex-row px-6 gap-6">
+          <Card className="bg-gray-800 text-center text-white border border-gray-600">
+            <CardHeader>
+              <div className="mx-auto bg-blue-600 p-3 rounded-full w-fit">
+                <svg
+                  className="h-8 w-8 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12h6m2 0a2 2 0 100-4H7a2 2 0 100 4h10zm0 0a2 2 0 110 4H7a2 2 0 110-4h10z"
+                  />
+                </svg>
+              </div>
+              <CardTitle className="pt-2">Content Analysis</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription className="text-gray-300">
+                XLM-RoBERTa analyzes text for linguistic cues, sentiment, and
+                consistency patterns
+                <br />
+                <strong>Output:</strong> Content-based credibility score
+              </CardDescription>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-800 text-center text-white border border-gray-600">
+            <CardHeader>
+              <div className="mx-auto bg-green-600 p-3 rounded-full w-fit">
+                <svg
+                  className="h-8 w-8 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+              </div>
+              <CardTitle className="pt-2">Context Analysis</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription className="text-gray-300">
+                Source verification, temporal consistency checks, and network
+                analysis
+                <br />
+                <strong>Output:</strong> Context-based credibility score
+              </CardDescription>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gray-800 text-center text-white border border-gray-600">
+            <CardHeader>
+              <div className="mx-auto bg-purple-600 p-3 rounded-full w-fit">
+                <svg
+                  className="h-8 w-8 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+              <CardTitle className="pt-2">Evidence Analysis</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <CardDescription className="text-gray-300">
+                Geotagging validation, image analysis, and cross-referencing
+                with official data
+                <br />
+                <strong>Output:</strong> Evidence-based credibility score
+              </CardDescription>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="bg-blue-900 text-white py-16">
         <div className="container mx-auto px-4 text-center">
